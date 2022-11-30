@@ -1,9 +1,9 @@
-#service catalog
+#resource catalog
 import json
 import datetime
 import requests
 import cherrypy
-from HomeCatalog import *
+from ResourceCatalog import *
 
 class Manager(object):
     exposed = True
@@ -11,9 +11,9 @@ class Manager(object):
     broker = "test.mosquitto.org"
     port = 1883
     # create a Catalog
-    HM = HomeCatalog()
+    RM = ResourceCatalog()
 
-    def GET(self, *uri, **params):
+    def GET(self, *uri, **params): #copiare da 5.1 server
 
     def POST(self, *uri, **params):
 
