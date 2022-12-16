@@ -26,9 +26,9 @@ class ManagerHome(object):
                 result = {"names": self.res_cat["patient"] + '\n' }
                 return json.dumps(result)
 
-            elif uri[0] == 'room_info':     #restituisce le informazione della singola camera
+            elif uri[0] == 'info_room':     #restituisce le informazione della singola camera
                 results = [entry for entry in self.res_cat if (entry["patient"] == params["patient"])]   #verifica che funzioni scritto cosi
-                return json.dumps(results)
+                return json.dumps(results)  #controllare cosa restituisce quando la room non esiste, per il risultato sui sensori
 
             elif uri[0] == 'broker':
                 temp = {'broker': self.broker, 'port': self.port}
