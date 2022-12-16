@@ -16,9 +16,9 @@ class ResourceCatalog:   #non sono sicura che servano classi diverse
 
     # --------- DEVICES ---------
 
-    def deviceByID(self, deviceID):
+    def sensorByID(self, deviceID):
 
-    def listDevices(self):
+    def listSensors(self):
         return json.dumps(self.devices)
 
 
