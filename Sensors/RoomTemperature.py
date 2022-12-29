@@ -47,55 +47,55 @@ class SensorControl:
         print("Published!\n" + json.dumps(message) + "\n")
 
 
-def registration(setting_file, service_file):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
-    with open(setting_file, "r") as f1:
-        conf = json.loads(f1.read())
+def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
+    with open(sensor_settings, "r") as f1:
+        conf_sensor = json.loads(f1.read())
 
-    with open(service_file, "r") as f2:
-        conf_service = json.loads(f2.read())
-    requeststring = 'http://' + conf_service['ip_address_service'] + ':' + conf_service[
-        'ip_port_service'] + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+    with open(home_settings, "r") as f2:
+        conf_home = json.loads(f2.read())
+    requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
+        'ip_port'] + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
     r = requests.get(requeststring)
     print("INFORMATION FROM SERVICE CATALOG RECEIVED!\n") #modifica
     print("List of patients:\n " + r.text + "\n")
     patient = input("Which patient do you want to control? ")
 
-    requeststring = 'http://' + conf_service['ip_address_service'] + ':' + conf_service[
-        'ip_port_service'] + '/info_room?patient=' + patient
+    requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
+        'ip_port'] + '/info_room?patient=' + patient
     r = requests.get(requeststring)
     print("INFORMATION OF RESOURCE CATALOG (room) RECEIVED!\n")  # PRINT FOR DEMO #modifica string
 
-    r_c = json.loads(r.text)
-    if r_c == None:  #controllare cosa restituisce da manager home info_room
+    r_dict = json.loads(r.text)
+    if r_dict == None:  #controllare cosa restituisce da manager home info_room
         return 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND'  #modificare
     else:
-        rc = r_c['result']
+        rc = r_dict['result'] #controllare perchè fa sta cosa
         rc_ip = rc["ip_address"]
         rc_port = rc["ip_port"]
-        poststring = 'http://' + rc_ip + ':' + rc_port + '/device'
+        poststring = 'http://' + rc_ip + ':' + rc_port + '/sensor'
         rc_basetopic = rc["base_topic"]
         rc_broker = rc["broker"]
         rc_port = rc["broker_port"]
         rc_patient = rc["patient"]
 
-        sensor_model = conf["sensor_model"]
+        sensor_model = conf_sensor["sensor_model"]
 
-        requeststring = 'http://' + conf_service['ip_address_service'] + ':' + conf_service[
-            'ip_port_service'] + '/base_topic'
+        requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
+            'ip_port'] + '/base_topic'
         sbt = requests.get(requeststring)
 
         service_b_t = json.loads(sbt.text)
         topic = []
         body = []
         index = 0
-        for i in conf["sensor_type"]:
+        for i in conf_sensor["sensor_type"]:
             print(i)
-            topic.append(service_b_t + '/' + rc_owner + '/' + rc_basetopic + "/" + i + "/" + conf["sensor_id"])
+            topic.append(service_b_t + '/' + rc_owner + '/' + rc_basetopic + "/" + i + "/" + conf_sensor["ID_sensor"])
             body_dic = {
-                "sensor_id": conf['sensor_id'],
-                "sensor_type": conf['sensor_type'],
+                "ID_sensor": conf_sensor['ID_sensor'],
+                "sensor_type": conf_sensor['sensor_type'],
                 "patient": rc["patient"],
-                "measure": conf["measure"][index],
+                "measure": conf_sensor["measure"][index],
                 "end-points": {
                     "basetopic": service_b_t + '/' + rc_owner + '/' + rc_basetopic,
                     "complete_topic": topic,
@@ -109,17 +109,18 @@ def registration(setting_file, service_file):  # IN ORDER TO REGISTER ON THE RES
 
             index = index + 1
 
-        return rc_basetopic, conf["sensor_type"], conf["sensor_id"], topic, conf[
+        return rc_basetopic, conf_sensor["sensor_type"], conf_sensor["ID_sensor"], topic, conf_sensor[
             "measure"], rc_broker, rc_port, sensor_model, rc["owner"]
 
 
 if __name__ == "__main__":
-
+    # creare variabili globali e modificare direttamente quelle in registrazion, evitare i NOT FOUND e usare solo flag 1 0 per dire
+    #trovato o non trovato
     clientID, sensortype, sensorID, topic, measure, broker, port, sensor_model, owner = registration(sys.argv[1],
-                                                                                                     "service_catalog_info.json")
+                                                                                                     "HomeCatalog_settings.json")
     while clientID == 'NOT FOUND' and sensortype == 'NOT FOUND' and sensorID == 'NOT FOUND' and topic == 'NOT FOUND' and measure == 'NOT FOUND' and broker == 'NOT FOUND' and port == 'NOT FOUND' and sensor_model == 'NOT FOUND' and owner == 'NOT FOUND':
         clientID, sensortype, sensorID, topic, measure, broker, port, sensor_model, owner = registration(sys.argv[1],
-                                                                                                         "service_catalog_info.json")
+                                                                                                         "HomeCatalog_settings.json")
     index = 0
     Sensor = []
     for i in sensortype:
