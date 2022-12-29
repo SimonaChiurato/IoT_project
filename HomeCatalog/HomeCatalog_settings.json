@@ -1,1 +1,8 @@
-{"resource_catalogs": [], "ip_address": "192.168.1.208", "ip_port": 8095, "broker_port": 1883, "broker": "test.mosquitto.org", "base_topic": "molinette"}
+{
+  "resource_catalogs": [],
+  "ip_address": "192.168.1.208",
+  "ip_port": 8095,
+  "broker_port": 1883,
+  "broker": "test.mosquitto.org",
+  "base_topic": "molinette"
+}
