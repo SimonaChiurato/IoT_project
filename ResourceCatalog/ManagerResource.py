@@ -27,7 +27,7 @@ class ManagerResource(sensors, settings, home_settings):
 
     RM = ResourceCatalog(self.sensors)
     def GET(self, *uri, **params): #copiare da 5.1 server
-        if len(uri) == 1 and len(parameters) < 2:
+        if len(uri) == 1 and len(params) < 2:
             if uri[0] == 'all':  #cosa esce da questa chiamata?
                 return RM.listSensors()
                 #???????????????????????' usare users?
@@ -39,7 +39,7 @@ class ManagerResource(sensors, settings, home_settings):
             #        raise cherrypy.HTTPError(400, 'user not found')
             #    return output
             elif uri[0] == 'sensor':
-                output = RM.sensorByID(parameters['ID_sensor'])
+                output = RM.sensorByID(params['ID_sensor'])
                 if output == {}:
                     raise cherrypy.HTTPError(400, 'sensor not found')
                 return output
@@ -63,14 +63,15 @@ class ManagerResource(sensors, settings, home_settings):
                 # print(json_body)
                 self.sensors = RM.addSensor(json_body)
                 print("SENSOR INFORMATION REGISTERED!\n")
+            else:
+                raise cherrypy.HTTPError(400, 'invalid uri')
+            '''
             elif (uri[0] == 'user'): #?????????????????
                 if self.searchUserByUserID(json_body['user_id']) != {}:
                     raise cherrypy.HTTPError(400, 'user already present')
                 self.insertUser(json_body)
                 self.sensors = json.load(open(self.devicesFile))
-            else:
-                raise cherrypy.HTTPError(400, 'invalid uri')
-
+            '''
         else:
             raise cherrypy.HTTPError(400, 'incorrect URI or PARAMETERS')
 
@@ -87,13 +88,6 @@ class ManagerResource(sensors, settings, home_settings):
                 else:
                     self.sensors = RM.addSensor(json_body)
                     print("SENSOR INFORMATION REGISTERED!\n")
-
-            elif uri[0] == 'user':
-                if self.searchUserByUserID(json_body['user_id']) != '{}':
-                    self.updateUserInfo(json_body)
-                else:
-                    self.insertUser(json_body)
-                self.devices = json.load(open(self.usersFile))
 
             else:
                 raise cherrypy.HTTPError(400, 'invalid uri')
@@ -130,5 +124,6 @@ if __name__ == "__main__":
     while 1:
         rcm.removeDevices()
         time.sleep(120)
-    cherrypy.engine.block()
+    
     '''
+    cherrypy.engine.block()
