@@ -122,8 +122,7 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
 
 
 if __name__ == "__main__":
-    # creare variabili globali e modificare direttamente quelle in registrazion, evitare i NOT FOUND e usare solo flag 1 0 per dire
-    #trovato o non trovato
+
     dict = registration(sys.argv[1], "HomeCatalog_settings.json")
     while dict == 'Patient not found':
         dict = registration(sys.argv[1], "HomeCatalog_settings.json")
