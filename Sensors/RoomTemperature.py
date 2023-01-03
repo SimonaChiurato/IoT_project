@@ -3,7 +3,6 @@ import time
 import json
 import random
 import requests
-import Adafruit_DHT
 import sys
 
 
@@ -25,7 +24,6 @@ class SensorControl:
                     'unit': self.measure,
                     'timestamp': '',
                     'value': ' ',
-                    'owner': '',
                     'room': ''
                 }
             ]
@@ -37,11 +35,10 @@ class SensorControl:
     def stop(self):
         self.client.stop()
 
-    def publish(self, value, owner, room):
+    def publish(self, value, room):
         message = self.__message
         message['e'][0]['value'] = value
         message['e'][0]['timestamp'] = str(time.time())
-        message['e'][0]['owner'] = owner
         message['e'][0]['room'] = room
         self.client.myPublish(self.topic, json.dumps(message))
         print("Published!\n" + json.dumps(message) + "\n")
@@ -66,17 +63,17 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
     print("INFORMATION OF RESOURCE CATALOG (room) RECEIVED!\n")  # PRINT FOR DEMO #modifica string
 
     r_dict = json.loads(r.text)
-    if r_dict == None:  #controllare cosa restituisce da manager home info_room
-        return 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND', 'NOT FOUND'  #modificare
+    rc = r_dict['result']  # controllare perchè fa sta cosa
+    if rc == 0:  #controllare cosa restituisce da manager home info_room
+        return 'Patient not found'
     else:
-        rc = r_dict['result'] #controllare perchè fa sta cosa
+
         rc_ip = rc["ip_address"]
         rc_port = rc["ip_port"]
         poststring = 'http://' + rc_ip + ':' + rc_port + '/sensor'
         rc_basetopic = rc["base_topic"]
         rc_broker = rc["broker"]
         rc_port = rc["broker_port"]
-        rc_patient = rc["patient"]
 
         sensor_model = conf_sensor["sensor_model"]
 
@@ -90,14 +87,14 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
         index = 0
         for i in conf_sensor["sensor_type"]:
             print(i)
-            topic.append(service_b_t + '/' + rc_owner + '/' + rc_basetopic + "/" + i + "/" + conf_sensor["ID_sensor"])
+            topic.append(service_b_t + '/' + rc_basetopic + '/' + i + '/' + conf_sensor["ID_sensor"])
             body_dic = {
                 "ID_sensor": conf_sensor['ID_sensor'],
                 "sensor_type": conf_sensor['sensor_type'],
                 "patient": rc["patient"],
                 "measure": conf_sensor["measure"][index],
                 "end-points": {
-                    "basetopic": service_b_t + '/' + rc_owner + '/' + rc_basetopic,
+                    "basetopic": service_b_t + '/' + rc_basetopic,
                     "complete_topic": topic,
                     "broker": rc["broker"],
                     "port": rc["broker_port"]
@@ -109,35 +106,42 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
 
             index = index + 1
 
-        return rc_basetopic, conf_sensor["sensor_type"], conf_sensor["ID_sensor"], topic, conf_sensor[
-            "measure"], rc_broker, rc_port, sensor_model, rc["owner"]
+        Result_Dict = {
+            "clientID": rc_basetopic,
+            "sensortype": conf_sensor["sensor_type"],
+            "sensorID": conf_sensor["ID_sensor"],
+            "topic": topic,
+            "measure": conf_sensor["measure"],
+            "broker": rc_broker,
+            "port": rc_port,
+            "sensor_model": sensor_model,
+            "owner": rc["patient"]
+        }
+
+        return Result_Dict
 
 
 if __name__ == "__main__":
     # creare variabili globali e modificare direttamente quelle in registrazion, evitare i NOT FOUND e usare solo flag 1 0 per dire
     #trovato o non trovato
-    clientID, sensortype, sensorID, topic, measure, broker, port, sensor_model, owner = registration(sys.argv[1],
-                                                                                                     "HomeCatalog_settings.json")
-    while clientID == 'NOT FOUND' and sensortype == 'NOT FOUND' and sensorID == 'NOT FOUND' and topic == 'NOT FOUND' and measure == 'NOT FOUND' and broker == 'NOT FOUND' and port == 'NOT FOUND' and sensor_model == 'NOT FOUND' and owner == 'NOT FOUND':
-        clientID, sensortype, sensorID, topic, measure, broker, port, sensor_model, owner = registration(sys.argv[1],
-                                                                                                         "HomeCatalog_settings.json")
+    dict = registration(sys.argv[1], "HomeCatalog_settings.json")
+    while dict == 'Patient not found':
+        dict = registration(sys.argv[1], "HomeCatalog_settings.json")
+
     index = 0
     Sensor = []
-    for i in sensortype:
-        Sensor.append(SensorControl(clientID, i, sensorID, measure[index], broker, port, topic[index]))
+    for i in dict['sensortype']:
+        Sensor.append(SensorControl(dict['clientID'], i, dict['sensorID'], dict['measure'][index], dict['broker'], dict['port'], dict['topic'][index]))
         Sensor[index].start()
         index = index + 1
 
-    config = json.load(open(sys.argv[1]))
+    Temperature = 20
+    Humidity = 50
     while 1:
-
-        pin = config["pin"]
-        humidity, temperature = Adafruit_DHT.read_retry(11, pin)
-
-        if humidity is not None and temperature is not None:
-            print('\nTemp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))
-            Sensor[0].publish('{0:0.1f}'.format(temperature), owner, room)
-            Sensor[1].publish('{0:0.1f}'.format(humidity), owner, room)
-            time.sleep(3)
-        else:
-            print('Failed to get reading. Try again!')
+        Temperature = Temperature + random.randint(-5,10) #SIMULATED SENSOR
+        print(Temperature)
+        Sensor[0].publish(Temperature, dict['owner'])
+        Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
+        print(Humidity)
+        Sensor[1].publish(Humidity, dict['owner'])
+        time.sleep(15)

@@ -19,9 +19,12 @@ class HomeCatalog:
     return result
 
   def searchPatient(self, params):
+    found = 0
     for entry in self.cat["resource_catalogs"]:
       if (entry["patient"] == params["patient"]):
+        found = 1
         return entry
+    return found
 
   def newResCat(self, message):
     already_existing = False
