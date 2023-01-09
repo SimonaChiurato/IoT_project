@@ -50,35 +50,38 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
 
     with open(home_settings, "r") as f2:
         conf_home = json.loads(f2.read())
-    requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
-        'ip_port'] + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+    requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+        'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
     r = requests.get(requeststring)
     print("INFORMATION FROM SERVICE CATALOG RECEIVED!\n") #modifica
-    print("List of patients:\n " + r.text + "\n")
-    patient = input("Which patient do you want to control? ")
-
-    requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
-        'ip_port'] + '/info_room?patient=' + patient
+    names= r.json()
+    print("List of patients:\n ") #\n??
+    for i in range(len(names['names'])):
+        print("Patient "+str(i+1)+" : "+names['names'][i]+"\n")
+    index_patient = input("Which patient do you want to control? Insert the number please ")
+    patient = names['names'][int(index_patient)-1]
+    requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+        'ip_port']) + '/info_room?patient=' + patient
     r = requests.get(requeststring)
     print("INFORMATION OF RESOURCE CATALOG (room) RECEIVED!\n")  # PRINT FOR DEMO #modifica string
 
-    r_dict = json.loads(r.text)
-    rc = r_dict['result']  # controllare perchè fa sta cosa
+    rc = json.loads(r.text)
     if rc == 0:  #controllare cosa restituisce da manager home info_room
+        print('Patient not found')
         return 'Patient not found'
     else:
 
         rc_ip = rc["ip_address"]
         rc_port = rc["ip_port"]
-        poststring = 'http://' + rc_ip + ':' + rc_port + '/sensor'
+        poststring = 'http://' + str(rc_ip) + ':' + str(rc_port) + '/sensor'
         rc_basetopic = rc["base_topic"]
         rc_broker = rc["broker"]
         rc_port = rc["broker_port"]
 
         sensor_model = conf_sensor["sensor_model"]
 
-        requeststring = 'http://' + conf_home['ip_address'] + ':' + conf_home[
-            'ip_port'] + '/base_topic'
+        requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+            'ip_port']) + '/base_topic'
         sbt = requests.get(requeststring)
 
         service_b_t = json.loads(sbt.text)
@@ -130,17 +133,18 @@ if __name__ == "__main__":
     index = 0
     Sensor = []
     for i in dict['sensortype']:
-        Sensor.append(SensorControl(dict['clientID'], i, dict['sensorID'], dict['measure'][index], dict['broker'], dict['port'], dict['topic'][index]))
+        Sensor.append(SensorControl(dict['clientID'], i, dict['sensorID'], dict['measure'][index], dict['broker'], int(dict['port']), dict['topic'][index]))
         Sensor[index].start()
         index = index + 1
 
-    Temperature = 20
-    Humidity = 50
+
     while 1:
+        Temperature = 20
+        Humidity = 50
         Temperature = Temperature + random.randint(-5,10) #SIMULATED SENSOR
         print(Temperature)
         Sensor[0].publish(Temperature, dict['owner'])
         Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
         print(Humidity)
         Sensor[1].publish(Humidity, dict['owner'])
-        time.sleep(15)
+        time.sleep(5)

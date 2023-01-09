@@ -1,9 +1,9 @@
 {
     "broker": "test.mosquitto.org",
     "broker_port": 1883,
-    "base_topic": "martino_conversano",
+    "base_topic": "simona_chiurato",
     "ip_address":"127.0.0.1",
-    "ip_port":8081,
-    "patient":"Martino Cokh"
+    "ip_port":8082,
+    "patient":"Simona Chiurato"
 }
 

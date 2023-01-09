@@ -5,7 +5,7 @@ import requests
 import cherrypy
 from ResourceCatalog import *
 
-class ManagerResource(sensors, settings, home_settings):
+class ManagerResource():
     """
     devices = devices_file
     settings = json of setting_file
@@ -18,18 +18,21 @@ class ManagerResource(sensors, settings, home_settings):
     def __init__(self,  sensors, settings, home_settings):
         #self.usersFile = users_file
         # self.users=json.load(open(self.usersFile)) #for future usage
-        self.sensors = sensors  # resource catalog
+        self.saved_file = sensors
+        with open(self.saved_file, "w") as myfile:
+            myfile.write("[]")
+        self.sensors = json.load(open(self.saved_file))  # resource catalog
+
         self.settings = settings
         self.home_settings = home_settings
-        poststring = "http://" + self.home_settings["ip_address"] + ":" + self.home_settings["ip_port"]
-        requests.post(poststring, json.dumps(self.settings))
+        poststring = "http://" + str(self.home_settings["ip_address"]) + ":" + str(self.home_settings["ip_port"])
+        requests.put(poststring, json.dumps(self.settings))
         print("POSTING INFORMATION TO THE SERVICE CATALOG\n")
-
-    RM = ResourceCatalog(self.sensors)
+        self.RM = ResourceCatalog(self.sensors)
     def GET(self, *uri, **params): #copiare da 5.1 server
         if len(uri) == 1 and len(params) < 2:
             if uri[0] == 'all':  #cosa esce da questa chiamata?
-                return RM.listSensors()
+                return self.RM.listSensors()
                 #???????????????????????' usare users?
             # elif uri[0]=='allusers':   #FOR FUTURE USE
             #    return self.viewAllUsers()
@@ -39,7 +42,7 @@ class ManagerResource(sensors, settings, home_settings):
             #        raise cherrypy.HTTPError(400, 'user not found')
             #    return output
             elif uri[0] == 'sensor':
-                output = RM.sensorByID(params['ID_sensor'])
+                output = self.RM.sensorByID(params['ID_sensor'])
                 if output == {}:
                     raise cherrypy.HTTPError(400, 'sensor not found')
                 return output
@@ -58,11 +61,14 @@ class ManagerResource(sensors, settings, home_settings):
             if (uri[0] == 'sensor'):
                 print("SENSOR INFORMATION RECEIVED!\n")
                 print("body=", json_body, "\n")
-                if RM.sensorByID(json_body['ID_sensor']) != {}:
+                if self.RM.sensorByID(json_body['ID_sensor']) != {}:
                     raise cherrypy.HTTPError(400, 'The sensor is already present!')
                 # print(json_body)
-                self.sensors = RM.addSensor(json_body)
+                self.sensors = self.RM.addSensor(json_body)
                 print("SENSOR INFORMATION REGISTERED!\n")
+                with open(self.saved_file, "w") as f:
+                    json.dump(self.sensors, f)
+
             else:
                 raise cherrypy.HTTPError(400, 'invalid uri')
             '''
@@ -82,11 +88,11 @@ class ManagerResource(sensors, settings, home_settings):
             if uri[0] == 'sensor':
                 print("SENSOR INFORMATION RECEIVED!\n")
                 print("body=", json_body, "\n")
-                if RM.sensorByID(json_body['ID_sensor']) != {}:
-                    self.sensors = RM.updateSensor(json_body)
+                if self.RM.sensorByID(json_body['ID_sensor']) != {}:
+                    self.sensors = self.RM.updateSensor(json_body)
                     print("SENSOR INFORMATION UPDATED!\n")
                 else:
-                    self.sensors = RM.addSensor(json_body)
+                    self.sensors = self.RM.addSensor(json_body)
                     print("SENSOR INFORMATION REGISTERED!\n")
 
             else:

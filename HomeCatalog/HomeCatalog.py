@@ -8,14 +8,14 @@ class HomeCatalog:
     self.settings = "HomeCatalog_settings.json"
     self.cat = json.load(open(self.settings))
     # self.conf["resource_catalogs"]=[]
-    with open(self.cat, "w") as myfile:  #controllare se serve cancellarlo ogni volta
-      myfile.write(json.dumps(self.cat))
+    #with open(self.cat, "w") as myfile:  #controllare se serve cancellarlo ogni volta
+     # myfile.write(json.dumps(self.cat))
 
 
   def returnAllPatients(self):
     result = { 'names':[] }
     for res in self.cat["resource_catalogs"]:
-      result['names'].append(res['patient'] +'\n')
+       result['names'].append(res['patient'])
     return result
 
   def searchPatient(self, params):
@@ -33,7 +33,9 @@ class HomeCatalog:
         already_existing = True
     if already_existing == False:
       self.cat["resource_catalogs"].append(message)
-      with open(self.cat, "w") as f:
+      print("Prova")
+      print(self.cat)
+      with open(self.settings, "w") as f:
         json.dump(self.cat, f)
       print ("Resource catalog inserted with success")
     else:
@@ -48,6 +50,8 @@ class HomeCatalog:
         entry["broker_port"] = message["broker_port"]
         entry["ip_address"] = message["ip_address"]
         entry["ip_port"] = message["ip_port"]
+        entry["patient"] = message["patient"]
+
 
     if already_existing == False:
       self.cat["resource_catalogs"].append(message)
