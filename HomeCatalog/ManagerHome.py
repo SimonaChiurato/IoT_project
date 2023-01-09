@@ -56,7 +56,7 @@ class ManagerHome(object):
             print("PUT RECEIVED WITH BODY:", body)
             json_body = json.loads(body)
             result = self.CM.updateResCat(json_body)
-            with open(result, "w") as f:
+            with open("HomeCatalog_settings.json", "w") as f:
                 json.dump(result, f)
         else:
             error_string = "incorrect URI or PARAMETERS" + {len(uri)}
@@ -72,7 +72,7 @@ if __name__=="__main__":
     }
     cherrypy.tree.mount(ManagerHome(),'/', conf)
     cherrypy.config.update(conf)
-    cherrypy.config.update({'server.socket_host':service_settings['ip_address_service']})
+    cherrypy.config.update({'server.socket_host':service_settings['ip_address']})
     cherrypy.config.update({"server.socket_port":service_settings['ip_port']})  #qui loro hanno una funzione
     cherrypy.engine.start()
     cherrypy.engine.block()

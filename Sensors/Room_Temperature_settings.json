@@ -1,5 +1,5 @@
 {
-    "sensor_id":"sensor_th_1",
+    "ID_sensor":"sensor_th_1",
     "sensor_type":["temperature","humidity"],
     "measure":["celsius", "percentage"],
     "sensor_model":"simulated_sensor"
