@@ -1,47 +1,21 @@
-from MyMQTT import *
-import time
 import json
-import random
 import requests
+import time
+import pygame
+import cherrypy
 import sys
 
 
-class SensorControl:
+class TemperatureServer:
+    exposed = True
 
-    def __init__(self, clientID, sensortype, sensorID, measure, broker, port, topic):
-        self.clientID = clientID
-        self.sensortype = sensortype
-        self.sensorID = sensorID
-        self.measure = measure
-        self.topic = topic
-        self.client = MyMQTT(self.sensorID, broker, port, None)
-
-        self.__message = {
-            'bn': self.topic,
-            'e': [
-                {
-                    'type': self.sensortype,
-                    'unit': self.measure,
-                    'timestamp': '',
-                    'value': ' ',
-                    'room': ''
-                }
-            ]
-        }
-
-    def start(self):
-        self.client.start()
-
-    def stop(self):
-        self.client.stop()
-
-    def publish(self, value, room):
-        message = self.__message
-        message['e'][0]['value'] = value
-        message['e'][0]['timestamp'] = str(time.time())
-        message['e'][0]['room'] = room
-        self.client.myPublish(self.topic, json.dumps(message))
-        print("Published!\n" + json.dumps(message) + "\n")
+    def POST(self):  # RECEIVING THE MESSAGE FROM SENSOR TEMPERATURE IN ORDER TO MAKE SOMETHING
+        body = json.loads(cherrypy.request.body.read())
+        if body > 13:
+            print ("Fa freddo, cerca dove mandare un allarme oppure scegli un azione da fare")
+        else:
+            print("Fa troppo freddooooo")
+        time.sleep(2)
 
 
 def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
@@ -106,53 +80,23 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
             body.append(body_dic)
             requests.post(poststring, json.dumps(body[index]))
             print("REGISTRATION TO RESOURCE CATALOG (room) DONE!\n")  # PRINT FOR DEMO
-
-            index = index + 1
-
-        Result_Dict = {
-            "clientID": rc_basetopic,
-            "sensortype": conf_sensor["sensor_type"],
-            "sensorID": conf_sensor["ID_sensor"],
-            "topic": topic,
-            "measure": conf_sensor["measure"],
-            "broker": rc_broker,
-            "port": rc_port,
-            "sensor_model": sensor_model,
-            "owner": rc["patient"]
-        }
-
-        return Result_Dict
-
+        return 'Patient found'
 
 if __name__ == "__main__":
 
-    dict = registration(sys.argv[1], "HomeCatalog_settings.json")
-    while dict == 'Patient not found':
-        dict = registration(sys.argv[1], "HomeCatalog_settings.json")
+    config = json.load(open(sys.argv[1]))
+    result = registration(sys.argv[1], "service_catalog_info.json")
+    while result == 'Patient not found':
+        result = registration(sys.argv[1], "service_catalog_info.json")
 
-    index = 0
-    Sensor = []
-    for i in dict['sensortype']:
-        Sensor.append(SensorControl(dict['clientID'], i, dict['sensorID'], dict['measure'][index], dict['broker'], int(dict['port']), dict['topic'][index]))
-        Sensor[index].start()
-        index = index + 1
-
-    sensor_settings=json.load(open(sys.argv[1]))
-
-    while 1:
-        Temperature = 20
-        Humidity = 50
-        Temperature = Temperature + random.randint(-5,10) #SIMULATED SENSOR
-        print(Temperature)
-        Sensor[0].publish(Temperature, dict['owner'])
-        Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
-        print(Humidity)
-        Sensor[1].publish(Humidity, dict['owner'])
-        time.sleep(5)
-
-
-        #prova codice di controllo sensori
-        if Temperature < 20:
-            poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-            requests.post(poststring, json.dumps(Temperature))  # POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
-            time.sleep(2)
+    conf = {
+        '/': {
+            'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+            'tools.sessions.on': True,
+        }
+    }
+    cherrypy.tree.mount(TemperatureServer(), '/', conf)
+    cherrypy.config.update(conf)
+    cherrypy.config.update({"server.socket_host": config["server_ip"]})
+    cherrypy.config.update({"server.socket_port": config["server_port"]})
+    cherrypy.engine.start()
