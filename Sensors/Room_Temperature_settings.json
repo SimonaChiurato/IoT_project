@@ -3,6 +3,6 @@
     "sensor_type":["temperature","humidity"],
     "measure":["celsius", "percentage"],
     "sensor_model":"simulated_sensor",
-    "server_ip":"192.168.1.8",
+    "server_ip":"127.0.0.1",
     "server_port":8089
 }

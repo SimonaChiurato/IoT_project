@@ -1,7 +1,6 @@
 import json
 import requests
 import time
-import pygame
 import cherrypy
 import sys
 
@@ -13,6 +12,7 @@ class TemperatureServer:
         body = json.loads(cherrypy.request.body.read())
         if body > 13:
             print ("Fa freddo, cerca dove mandare un allarme oppure scegli un azione da fare")
+            print (body)
         else:
             print("Fa troppo freddooooo")
         time.sleep(2)
@@ -85,9 +85,9 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
 if __name__ == "__main__":
 
     config = json.load(open(sys.argv[1]))
-    result = registration(sys.argv[1], "service_catalog_info.json")
+    result = registration(sys.argv[1], "HomeCatalog_settings.json")
     while result == 'Patient not found':
-        result = registration(sys.argv[1], "service_catalog_info.json")
+        result = registration(sys.argv[1], "HomeCatalog_settings.json")
 
     conf = {
         '/': {

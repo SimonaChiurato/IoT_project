@@ -1,5 +1,7 @@
 import paho.mqtt.client as PahoMQTT
 import json
+
+
 class MyMQTT:
     def __init__(self, clientID, broker, port, notifier):
         self.broker = broker
@@ -13,8 +15,7 @@ class MyMQTT:
         # register the callback
         self._paho_mqtt.on_connect = self.myOnConnect
         self._paho_mqtt.on_message = self.myOnMessageReceived
- 
- 
+
     def myOnConnect (self, paho_mqtt, userdata, flags, rc):
         print("")
         #print ("Connected to %s with result code: %d" % (self.broker, rc))
@@ -27,7 +28,6 @@ class MyMQTT:
         # publish a message with a certain topic
         self._paho_mqtt.publish(topic, json.dumps(msg), 2)
 
- 
     def mySubscribe (self, topic):
         
         # subscribe for a topic

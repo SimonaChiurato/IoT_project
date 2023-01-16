@@ -1,30 +1,30 @@
 from MyMQTT import *
-import time
 import json
 import random
 import requests
 import sys
+import time
 
 
-class SensorControl:
+class SensorComunication:
 
-    def __init__(self, clientID, sensortype, sensorID, measure, broker, port, topic):
+    def __init__(self, broker, clientID, port, sensorID, sensormeasure, sensortype, topic):
         self.clientID = clientID
         self.sensortype = sensortype
         self.sensorID = sensorID
-        self.measure = measure
+        self.sensormeasure = sensormeasure
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
         self.__message = {
-            'bn': self.topic,
-            'e': [
+            'topic': self.topic,
+            'message': [
                 {
                     'type': self.sensortype,
-                    'unit': self.measure,
-                    'timestamp': '',
+                    'unit': self.sensormeasure,
+                    'patient': '',
                     'value': ' ',
-                    'room': ''
+                    'time': ''
                 }
             ]
         }
@@ -37,86 +37,77 @@ class SensorControl:
 
     def publish(self, value, room):
         message = self.__message
-        message['e'][0]['value'] = value
-        message['e'][0]['timestamp'] = str(time.time())
-        message['e'][0]['room'] = room
+        message['message'][0]['patient'] = room
+        message['message'][0]['value'] = value
+        message['message'][0]['time'] = str(time.time())
         self.client.myPublish(self.topic, json.dumps(message))
         print("Published!\n" + json.dumps(message) + "\n")
 
 
-def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
-    with open(sensor_settings, "r") as f1:
-        conf_sensor = json.loads(f1.read())
+def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
+    with open(sensor_settings, "r") as file1:
+        conf_sensor = json.loads(file1.read())
 
-    with open(home_settings, "r") as f2:
-        conf_home = json.loads(f2.read())
-    requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+    with open(home_settings, "r") as file2:
+        conf_home = json.loads(file2.read())
+    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
-    r = requests.get(requeststring)
-    print("INFORMATION FROM SERVICE CATALOG RECEIVED!\n") #modifica
-    names= r.json()
-    print("List of patients:\n ") #\n??
+    ListOfPatients = requests.get(request)
+    print("LIST OF PATIENTS RECEIVED FROM SERVICE CATALOG RECEIVED!\n") #modifica
+    names = ListOfPatients.json()
+    print("List of patients:\n ")
     for i in range(len(names['names'])):
         print("Patient "+str(i+1)+" : "+names['names'][i]+"\n")
     index_patient = input("Which patient do you want to control? Insert the number please ")
     patient = names['names'][int(index_patient)-1]
-    requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/info_room?patient=' + patient
-    r = requests.get(requeststring)
-    print("INFORMATION OF RESOURCE CATALOG (room) RECEIVED!\n")  # PRINT FOR DEMO #modifica string
+    ResourceCatalog = requests.get(request)
+    rc = json.loads(ResourceCatalog.text)
+    print("RESOURCE CATALOG OF PATIENT " + rc['patient'] + "RECEIVED!\n")  # PRINT FOR DEMO #modifica string
 
-    rc = json.loads(r.text)
-    if rc == 0:  #controllare cosa restituisce da manager home info_room
+    if rc == 0:
         print('Patient not found')
         return 'Patient not found'
     else:
-
-        rc_ip = rc["ip_address"]
-        rc_port = rc["ip_port"]
-        poststring = 'http://' + str(rc_ip) + ':' + str(rc_port) + '/sensor'
-        rc_basetopic = rc["base_topic"]
-        rc_broker = rc["broker"]
-        rc_port = rc["broker_port"]
-
+        post = 'http://' + str(rc["ip_address"]) + ':' + str(rc["ip_port"]) + '/sensor'
         sensor_model = conf_sensor["sensor_model"]
-
-        requeststring = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
+        request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
             'ip_port']) + '/base_topic'
-        sbt = requests.get(requeststring)
-
-        service_b_t = json.loads(sbt.text)
-        topic = []
-        body = []
-        index = 0
+        ServiceTopic = requests.get(request)
+        ServiceTopic = json.loads(ServiceTopic.text)
+        CompleteTopic = []
+        BodyMessage = []
+        model = 0
         for i in conf_sensor["sensor_type"]:
             print(i)
-            topic.append(service_b_t + '/' + rc_basetopic + '/' + i + '/' + conf_sensor["ID_sensor"])
+            CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
             body_dic = {
                 "ID_sensor": conf_sensor['ID_sensor'],
                 "sensor_type": conf_sensor['sensor_type'],
                 "patient": rc["patient"],
-                "measure": conf_sensor["measure"][index],
-                "end-points": {
-                    "basetopic": service_b_t + '/' + rc_basetopic,
-                    "complete_topic": topic,
+                "measure": conf_sensor["measure"][model],
+                "comunication": {
+                    "basetopic": ServiceTopic + '/' + rc["base_topic"],
+                    "complete_topic": CompleteTopic,
                     "broker": rc["broker"],
                     "port": rc["broker_port"]
                 }
             }
-            body.append(body_dic)
-            requests.post(poststring, json.dumps(body[index]))
+            BodyMessage.append(body_dic)
+            requests.post(post, json.dumps(BodyMessage[model]))
             print("REGISTRATION TO RESOURCE CATALOG (room) DONE!\n")  # PRINT FOR DEMO
 
-            index = index + 1
+            model = model + 1
 
         Result_Dict = {
-            "clientID": rc_basetopic,
+            "clientID": rc["base_topic"],
             "sensortype": conf_sensor["sensor_type"],
             "sensorID": conf_sensor["ID_sensor"],
-            "topic": topic,
+            "topic": CompleteTopic,
             "measure": conf_sensor["measure"],
-            "broker": rc_broker,
-            "port": rc_port,
+            "broker": rc["broker"],
+            "port": int(rc["broker_port"]),
             "sensor_model": sensor_model,
             "owner": rc["patient"]
         }
@@ -126,16 +117,16 @@ def registration(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE
 
 if __name__ == "__main__":
 
-    dict = registration(sys.argv[1], "HomeCatalog_settings.json")
+    dict = SensorRegistry(sys.argv[1], "HomeCatalog_settings.json")
     while dict == 'Patient not found':
-        dict = registration(sys.argv[1], "HomeCatalog_settings.json")
+        dict = SensorRegistry(sys.argv[1], "HomeCatalog_settings.json")
 
-    index = 0
+    model = 0
     Sensor = []
     for i in dict['sensortype']:
-        Sensor.append(SensorControl(dict['clientID'], i, dict['sensorID'], dict['measure'][index], dict['broker'], int(dict['port']), dict['topic'][index]))
-        Sensor[index].start()
-        index = index + 1
+        Sensor.append(SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'][model], i, dict['topic'][model]))
+        Sensor[model].start()
+        model = model + 1
 
     sensor_settings=json.load(open(sys.argv[1]))
 
