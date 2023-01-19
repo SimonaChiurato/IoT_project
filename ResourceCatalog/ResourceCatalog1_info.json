@@ -1,1 +1,2 @@
+
 "[{\"ID_sensor\": \"sensor_th_1\", \"sensor_type\": [\"temperature\", \"humidity\"], \"patient\": \"Martino Conversano\", \"measure\": \"celsius\", \"comunication\": {\"basetopic\": \"molinette/martino_conversano\", \"complete_topic\": [\"molinette/martino_conversano/temperature/sensor_th_1\"], \"broker\": \"test.mosquitto.org\", \"port\": 1883}, \"insert-timestamp\": 1673888924.4426868}]"
