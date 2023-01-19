@@ -2,5 +2,7 @@
     "ID_sensor":"sensor_th_1",
     "sensor_type":["temperature","humidity"],
     "measure":["celsius", "percentage"],
-    "sensor_model":"simulated_sensor"
+    "sensor_model":"simulated_sensor",
+    "server_ip":"127.0.0.1",
+    "server_port":8089
 }

@@ -35,7 +35,7 @@ un catalog è una stanza, con una lista di sensori. Ogni catalog ha un paziente 
             return {}
         for dev in self.sensors_list:
             if dev['ID_sensor'] == sensor['ID_sensor']:
-                dev['end-points'] = sensor['end-points']
+                dev['comunication'] = sensor['comunication']
                 dev['available_resources'] = sensor['available_resources'] #non lo trovo
                 dev['insert-timestamp'] = time.time()
                 break
