@@ -7,9 +7,9 @@ class HomeCatalog:
   def __init__(self):
     self.settings = "HomeCatalog_settings.json"
     self.cat = json.load(open(self.settings))
-    # self.conf["resource_catalogs"]=[]
-    #with open(self.cat, "w") as myfile:  #controllare se serve cancellarlo ogni volta
-     # myfile.write(json.dumps(self.cat))
+    self.cat["resource_catalogs"]=[]
+    with open(self.settings, "w") as myfile:
+      myfile.write(json.dumps(self.cat))
 
 
   def returnAllPatients(self):
