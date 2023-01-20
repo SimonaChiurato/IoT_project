@@ -53,18 +53,18 @@ def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON T
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
     ListOfPatients = requests.get(request)
-    print("LIST OF PATIENTS RECEIVED FROM SERVICE CATALOG RECEIVED!\n") #modifica
+    print("Connection with home catalog: OK\n") #modifica
     names = ListOfPatients.json()
     print("List of patients:\n ")
     for i in range(len(names['names'])):
         print("Patient "+str(i+1)+" : "+names['names'][i]+"\n")
-    index_patient = input("Which patient do you want to control? Insert the number please ")
+    index_patient = input("Which patient do you want to check? Insert the number please ")
     patient = names['names'][int(index_patient)-1]
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/info_room?patient=' + patient
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
-    print("RESOURCE CATALOG OF PATIENT " + rc['patient'] + "RECEIVED!\n")  # PRINT FOR DEMO #modifica string
+    print("Information on patient " + rc['patient'] + "received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
 
     if rc == 0:
         print('Patient not found')
@@ -96,7 +96,7 @@ def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON T
             }
             BodyMessage.append(body_dic)
             requests.post(post, json.dumps(BodyMessage[model]))
-            print("REGISTRATION TO RESOURCE CATALOG (room) DONE!\n")  # PRINT FOR DEMO
+            print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
             model = model + 1
 
