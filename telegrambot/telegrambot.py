@@ -45,7 +45,7 @@ class EchoBot1:
         message = msg['text']
         
         if message == "/start":
-            self.bot.sendMessage(chat_ID, text=" Benvenuto! Per leggere la temperatura chiedi /temperature, per leggere l'umidità chiedi /humidity")
+            self.bot.sendMessage(chat_ID, text=" Welcome! Per leggere la temperatura chiedi /temperature, per leggere l'umidità chiedi /humidity")
         
         
         if message == "/temperature":
