@@ -16,7 +16,7 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {
+        self.__message = {  #queste parti sono fisse?
             'topic': self.topic,
             'message': [
                 {
@@ -35,16 +35,16 @@ class SensorComunication:
     def stop(self):
         self.client.stop()
 
-    def publish(self, value, room):
+    def publish(self, value, patient):
         message = self.__message
-        message['message'][0]['patient'] = room
+        message['message'][0]['patient'] = patient
         message['message'][0]['value'] = value
         message['message'][0]['time'] = str(time.time())
         self.client.myPublish(self.topic, json.dumps(message))
         print("Published!\n" + json.dumps(message) + "\n")
 
 
-def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON THE RESOURCE CATALOG
+def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor on the resource catalog
     with open(sensor_settings, "r") as file1:
         conf_sensor = json.loads(file1.read())
 
@@ -55,16 +55,27 @@ def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON T
     ListOfPatients = requests.get(request)
     print("Connection with home catalog: OK\n") #modifica
     names = ListOfPatients.json()
-    print("List of patients:\n ")
-    for i in range(len(names['names'])):
-        print("Patient "+str(i+1)+" : "+names['names'][i]+"\n")
-    index_patient = input("Which patient do you want to check? Insert the number please ")
-    patient = names['names'][int(index_patient)-1]
+    check_name = False
+    while check_name == False:
+        print("List of patients:\n ")
+        for i in range(len(names['names'])):
+            print("Patient "+str(i+1)+" : "+names['names'][i]+"\n")
+        index_patient = input("Which patient do you want to check? Insert the number please ")
+        if isinstance(index_patient, str) and index_patient.isnumeric():
+            int_index = int(index_patient)
+            if (int_index-1) in range(len(names['names'])):
+                patient = names['names'][int(index_patient) - 1]
+                check_name = True
+            else:
+                print("Sorry, you have give the wrong input, try again!")
+        else:
+            print("Sorry, you have give the wrong input, you have to write only the number corresponding to the patient!")
+
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/info_room?patient=' + patient
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
-    print("Information on patient " + rc['patient'] + "received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
+    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
 
     if rc == 0:
         print('Patient not found')
@@ -83,8 +94,8 @@ def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON T
             print(i)
             CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
             body_dic = {
-                "ID_sensor": conf_sensor['ID_sensor'],
                 "sensor_type": conf_sensor['sensor_type'],
+                "ID_sensor": conf_sensor['ID_sensor'],
                 "patient": rc["patient"],
                 "measure": conf_sensor["measure"][model],
                 "comunication": {
@@ -97,27 +108,26 @@ def SensorRegistry(sensor_settings, home_settings):  # IN ORDER TO REGISTER ON T
             BodyMessage.append(body_dic)
             requests.post(post, json.dumps(BodyMessage[model]))
             print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
-
             model = model + 1
 
         Result_Dict = {
-            "clientID": rc["base_topic"],
             "sensortype": conf_sensor["sensor_type"],
+            "clientID": rc["base_topic"],
             "sensorID": conf_sensor["ID_sensor"],
             "topic": CompleteTopic,
             "measure": conf_sensor["measure"],
             "broker": rc["broker"],
             "port": int(rc["broker_port"]),
-            "sensor_model": sensor_model,
-            "owner": rc["patient"]
+            "sensor_model": sensor_model,   #perchè metterlo??? cioè, si può togliere?
+            "patient": rc["patient"]
         }
 
         return Result_Dict
 
 
 if __name__ == "__main__":
-
-    dict = SensorRegistry(sys.argv[1], "HomeCatalog_settings.json")
+    sensor_settings = json.load(open(sys.argv[1]))
+    dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
     while dict == 'Patient not found':
         dict = SensorRegistry(sys.argv[1], "HomeCatalog_settings.json")
 
@@ -128,22 +138,36 @@ if __name__ == "__main__":
         Sensor[model].start()
         model = model + 1
 
-    sensor_settings=json.load(open(sys.argv[1]))
+
+
+    """
+    questo è il sensore non simulato, quando gli consegniamo il codice potremmo mettergli ste righe di codice anche solo commentate
+    così sembra che sappiamo usare raspberry ma che poi l'abbiamo simulato perchè non avevamo più l'hardware =D
+    
+        while 1:
+            
+        pin=config["pin"]
+        Humidity, Temperature = Adafruit_DHT.read_retry(11, pin)
+        
+        if Humidity is not None and temperature is not None:
+            print('\nTemp={0:0.1f}*C  Humidity={1:0.1f}%'.format(Temperature, Humidity))
+            Sensor[0].publish('{0:0.1f}'.format(Temperature), owner, room)
+            Sensor[1].publish('{0:0.1f}'.format(Humidity), owner, room)
+            time.sleep(3)
+        else:
+            print('Failure. Try again!')
+    """
 
     while 1:
         Temperature = 20
         Humidity = 50
         Temperature = Temperature + random.randint(-5,10) #SIMULATED SENSOR
         print(Temperature)
-        Sensor[0].publish(Temperature, dict['owner'])
+        Sensor[0].publish(Temperature, dict['patient'])
         Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
-        print(Humidity)
-        Sensor[1].publish(Humidity, dict['owner'])
-        time.sleep(5)
-
-
-        #prova codice di controllo sensori
-        if Temperature < 20:
-            poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-            requests.post(poststring, json.dumps(Temperature))  # POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
-            time.sleep(2)
+        print(Humidity,dict['patient'] )
+        Sensor[1].publish(Humidity, dict['patient'])
+        time.sleep(2)
+        dict2={'Patient':dict['patient'], 'Temperature':Temperature, 'Humidity': Humidity, }
+        poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
+        requests.post(poststring, json.dumps(dict2))  # POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
