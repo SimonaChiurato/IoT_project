@@ -28,7 +28,7 @@ un catalog è una stanza, con una lista di sensori. Ogni catalog ha un paziente 
     def addSensor(self, sensor):
         sensor['insert-timestamp'] = time.time()
         self.sensors_list.append(sensor)
-        return  json.dumps(self.sensors_list)
+        return json.dumps(self.sensors_list)
 
     def updateSensor(self, sensor):
         if len(self.sensors_list) == 0:
@@ -36,8 +36,6 @@ un catalog è una stanza, con una lista di sensori. Ogni catalog ha un paziente 
         for dev in self.sensors_list:
             if dev['ID_sensor'] == sensor['ID_sensor']:
                 dev['comunication'] = sensor['comunication']
-                dev['available_resources'] = sensor['available_resources'] #non lo trovo
-                dev['insert-timestamp'] = time.time()
                 break
         return  json.dumps(self.sensors_list)
 

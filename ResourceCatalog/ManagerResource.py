@@ -59,13 +59,14 @@ class ManagerResource():
             body = cherrypy.request.body.read()
             json_body = json.loads(body)
             if (uri[0] == 'sensor'):
-                print("SENSOR INFORMATION RECEIVED!\n")
+                print("SENSOR INFORMATION RECEIVED (post)!\n")
                 print("body=", json_body, "\n")
                 if self.RM.sensorByID(json_body['ID_sensor']) != {}:
                     raise cherrypy.HTTPError(400, 'The sensor is already present!')
                 # print(json_body)
                 self.sensors = self.RM.addSensor(json_body)
-                print("SENSOR INFORMATION REGISTERED!\n")
+
+                print("SENSOR INFORMATION REGISTERED (post)!\n")
                 with open(self.saved_file, "w") as f:
                     json.dump(self.sensors, f)
 
@@ -86,14 +87,16 @@ class ManagerResource():
             body = cherrypy.request.body.read()
             json_body = json.loads(body)
             if uri[0] == 'sensor':
-                print("SENSOR INFORMATION RECEIVED!\n")
+                print("SENSOR INFORMATION RECEIVED (put)!\n")
                 print("body=", json_body, "\n")
+
                 if self.RM.sensorByID(json_body['ID_sensor']) != {}:
+                    print("update??")
                     self.sensors = self.RM.updateSensor(json_body)
-                    print("SENSOR INFORMATION UPDATED!\n")
+                    print("SENSOR INFORMATION UPDATED (put)!\n")
                 else:
                     self.sensors = self.RM.addSensor(json_body)
-                    print("SENSOR INFORMATION REGISTERED!\n")
+                    print("SENSOR INFORMATION REGISTERED (put)!\n")
 
             else:
                 raise cherrypy.HTTPError(400, 'invalid uri')

@@ -83,10 +83,10 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home['ip_port']) + '/base_topic'
         ServiceTopic = requests.get(request)
         ServiceTopic = json.loads(ServiceTopic.text)
-        CompleteTopic = []
-        BodyMessage = []
 
-        CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor['sensor_type'] + '/' + conf_sensor["ID_sensor"])
+
+
+        CompleteTopic = ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor['sensor_type'] + '/' + conf_sensor["ID_sensor"]
         body_dic = {
             "sensortype": conf_sensor['sensor_type'],
             "ID_sensor": conf_sensor['ID_sensor'],
@@ -99,8 +99,8 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
                 "port": rc["broker_port"]
             }
         }
-        BodyMessage.append(body_dic)
-        requests.post(post, json.dumps(BodyMessage))
+
+        requests.post(post, json.dumps(body_dic))
         print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
         Result_Dict = {
@@ -123,15 +123,17 @@ if __name__ == "__main__":
     while dict == 'Patient not found':
         dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
 
-    Sensor= SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict['sensor_type'], dict['topic'])
+    Sensor= SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict['sensortype'], dict['topic'])
     Sensor.start()
 
     while 1:
-        HeartRate= 20
+        HeartRate = 80
         HeartRate = HeartRate + random.randint(-1, 1) #SIMULATED SENSOR
-        print(HeartRate)
+        print(HeartRate, dict['patient'])
         Sensor.publish(HeartRate, dict['patient'])
         time.sleep(2)
-        dict2={'Patient':dict['patient'], 'HeartRate':HeartRate}
-        poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-        requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
+
+        #serve per telegram??
+        #dict2={'Patient':dict['patient'], 'HeartRate': HeartRate}
+        #poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
+        #requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
