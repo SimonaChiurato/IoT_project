@@ -84,10 +84,9 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home['ip_port']) + '/base_topic'
         ServiceTopic = requests.get(request)
         ServiceTopic = json.loads(ServiceTopic.text)
-        CompleteTopic = []
-        BodyMessage = []
 
-        CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor["sensor_type"] + '/' + conf_sensor["ID_sensor"])
+
+        CompleteTopic = ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor["sensor_type"] + '/' + conf_sensor["ID_sensor"]
         body_dic = {
             "sensortype": conf_sensor['sensor_type'],
             "ID_sensor": conf_sensor['ID_sensor'],
@@ -123,7 +122,7 @@ if __name__ == "__main__":
     while dict == 'Patient not found':
         dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
 
-    Sensor = (SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict["sensor_type"], dict['topic']))
+    Sensor = (SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict["sensortype"], dict['topic']))
     Sensor.start()
     """
         while 1:
