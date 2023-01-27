@@ -1,5 +1,5 @@
 {
-    "ID_sensor":"sensor_body_th_1",
+    "ID_sensor":"body_temperature",
     "sensor_type":"body temperature",
     "measure":"celsius",
     "server_ip":"127.0.0.1",
