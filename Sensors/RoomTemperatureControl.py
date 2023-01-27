@@ -15,6 +15,7 @@ class TemperatureServer:
         Humidity = body['Humidity']
 
         if Temperature < 18:
+            #warning telegram
             print("Fa freddo dal paziente " + patient + ". Temperature: " + str(Temperature))
         elif Temperature > 25:
             print("Fa caldo dal paziente " + patient + ".Temperature: " + str(Temperature))
@@ -23,7 +24,7 @@ class TemperatureServer:
             print("umidità troppo bassa dal paziente " + patient + ". Humidity: " + str(Humidity))
         elif Humidity > 60:
             print("umidità troppo alta dal paziente " + patient + ". Humidity: " + str(Humidity))
-            print("umidità troppo alta dal paziente " + patient + ". Humidity: " + str(Humidity))
+           # print("umidità troppo alta dal paziente " + patient + ". Humidity: " + str(Humidity))
 
 
 
