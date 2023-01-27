@@ -86,26 +86,22 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         ServiceTopic = json.loads(ServiceTopic.text)
         CompleteTopic = []
         BodyMessage = []
-        model = 0
-        for i in conf_sensor["sensor_type"]:
-            print(i)
-            CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
-            body_dic = {
-                "sensortype": conf_sensor['sensor_type'],
-                "ID_sensor": conf_sensor['ID_sensor'],
-                "patient": rc["patient"],
-                "measure": conf_sensor["measure"][model],
-                "comunication": {
-                    "basetopic": ServiceTopic + '/' + rc["base_topic"],
-                    "complete_topic": CompleteTopic,
-                    "broker": rc["broker"],
-                    "port": rc["broker_port"]
-                }
+
+        CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor["sensor_type"] + '/' + conf_sensor["ID_sensor"])
+        body_dic = {
+            "sensortype": conf_sensor['sensor_type'],
+            "ID_sensor": conf_sensor['ID_sensor'],
+            "patient": rc["patient"],
+            "measure": conf_sensor["measure"],
+            "comunication": {
+                "basetopic": ServiceTopic + '/' + rc["base_topic"],
+                "complete_topic": CompleteTopic,
+                "broker": rc["broker"],
+                "port": rc["broker_port"]
             }
-            BodyMessage.append(body_dic)
-            requests.post(post, json.dumps(BodyMessage[model]))
-            print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
-            model = model + 1
+        }
+        requests.post(post, json.dumps(body_dic))
+        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"],
@@ -127,12 +123,8 @@ if __name__ == "__main__":
     while dict == 'Patient not found':
         dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
 
-    value_sensortype = 0  #take the value regarding the right type of sensor (first temperature, then humidity)
-    Sensor = []
-    for i in dict['sensortype']:
-        Sensor.append(SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'][value_sensortype], i, dict['topic'][value_sensortype]))
-        Sensor[value_sensortype].start()
-        value_sensortype = value_sensortype + 1
+    Sensor = (SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict["sensor_type"], dict['topic']))
+    Sensor.start()
     """
         while 1:
             
@@ -149,15 +141,11 @@ if __name__ == "__main__":
     """
 
     while 1:
-        Temperature = 20
-        Humidity = 50
-        Temperature = Temperature + random.randint(-1,1) #SIMULATED SENSOR
-        print(Temperature)
-        Sensor[0].publish(Temperature, dict['patient'])
-        Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
-        print(Humidity )
-        Sensor[1].publish(Humidity, dict['patient'])
+        Body_Temperature = 35
+        Body_Temperature = Body_Temperature + random.randint(-1,1) #SIMULATED SENSOR
+        print(Body_Temperature)
+        Sensor.publish(Body_Temperature, dict['patient'])
         time.sleep(2)
-        dict2={'Patient':dict['patient'], 'Temperature':Temperature, 'Humidity': Humidity, }
+        dict2={'Patient':dict['patient'], 'Temperature':Body_Temperature}
         poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
         requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
