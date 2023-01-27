@@ -16,14 +16,14 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {  #queste parti sono fisse?
-            'topic': self.topic,
-            'message': [
+        self.__message = {  #topic --> bn   message--> e !!!!!!
+            'bn': self.topic,
+            'e': [
                 {
                     'type': self.sensortype,
                     'unit': self.sensormeasure,
                     'patient': '',
-                    'value': ' ',
+                    'value': '',
                     'time': ''
                 }
             ]
@@ -37,9 +37,9 @@ class SensorComunication:
 
     def publish(self, value, patient):
         message = self.__message
-        message['message'][0]['patient'] = patient
-        message['message'][0]['value'] = value
-        message['message'][0]['time'] = str(time.time())
+        message['e'][0]['patient'] = patient
+        message['e'][0]['value'] = value
+        message['e'][0]['time'] = str(time.time())
         self.client.myPublish(self.topic, json.dumps(message))
         print("Published!\n" + json.dumps(message) + "\n")
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     sensor_settings = json.load(open(sys.argv[1]))
     dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
     while dict == 'Patient not found':
-        dict = SensorRegistry(sys.argv[1], "HomeCatalog_settings.json")
+        dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
 
     model = 0
     Sensor = []
