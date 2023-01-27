@@ -1,7 +1,7 @@
 {
-    "ID_sensor":"sensor_th_1",
-    "sensor_type":["temperature","humidity"],
-    "measure":["celsius", "percentage"],
+    "ID_sensor":"sensor_heartRate",
+    "sensor_type":["heart rate"],
+    "measure":["bpm"],
     "server_ip":"127.0.0.1",
-    "server_port":8089
+    "server_port":8085
 }
