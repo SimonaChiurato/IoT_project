@@ -1,0 +1,7 @@
+{
+    "ID_sensor":"sensor_heart_rate",
+    "sensor_type":"heart rate",
+    "measure":"bpm",
+    "server_ip":"127.0.0.1",
+    "server_port":8087
+}
