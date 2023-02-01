@@ -49,7 +49,6 @@ class EchoBot1:
             buttons = ([InlineKeyboardButton(text='Doctor', callback_data=0)])
             buttons.append([InlineKeyboardButton(text='Patient', callback_data=1)])
             keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-            print(keyboard)
         if message == "/temperature":
             self.chosen_room=0
             buttons=[]
