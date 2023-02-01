@@ -45,9 +45,11 @@ class EchoBot1:
         message = msg['text']
         
         if message == "/start":
-            self.bot.sendMessage(chat_ID, text=" Welcome! Per leggere la temperatura chiedi /temperature, per leggere l'umidità chiedi /humidity")
-        
-        
+            self.bot.sendMessage(chat_ID, text=" Welcome! Are you the doctor or the patient?")
+            buttons = ([InlineKeyboardButton(text='Doctor', callback_data=0)])
+            buttons.append([InlineKeyboardButton(text='Patient', callback_data=1)])
+            keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+            print(keyboard)
         if message == "/temperature":
             self.chosen_room=0
             buttons=[]
@@ -65,6 +67,7 @@ class EchoBot1:
         query_ID , chat_ID , query_data = telepot.glance(msg,flavor='callback_query')
         message = query_data
         print(msg)
+        print('ciao')
         
         # if self.chosen_owner==0:
         #     self.chosen_owner=1    
