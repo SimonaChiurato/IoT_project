@@ -117,7 +117,6 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
 
 
 if __name__ == "__main__":
-    sensor_settings = json.load(open(sys.argv[1]))
     dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
     while dict == 'Patient not found':
         dict = RegisterSensor(sys.argv[1], "HomeCatalog_settings.json")
