@@ -19,6 +19,7 @@ class ManagerHome(object):
         if len(uri) == 1:
 
             if uri[0] == 'resource_catalogs':           #restituisce tutti i res cat che ho
+                self.settings = json.load(open("HomeCatalog_settings.json"))
                 return json.dumps(self.settings["resource_catalogs"])
 
             elif uri[0] == 'patients':     #restituisce la lista dei nomi dei pazienti

@@ -86,7 +86,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
 
 
 
-        CompleteTopic = ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor['sensor_type'] + '/' + conf_sensor["ID_sensor"]
+        CompleteTopic = ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor['sensor_type'][0] + '/' + conf_sensor["ID_sensor"]
         body_dic = {
             "sensortype": conf_sensor['sensor_type'],
             "ID_sensor": conf_sensor['ID_sensor'],
