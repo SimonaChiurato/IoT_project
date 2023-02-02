@@ -41,7 +41,7 @@ class EchoBot1:
         
     def on_chat_message(self, msg):
         content_type, chat_type, chat_ID = telepot.glance(msg)
-        # print(content_type, chat_type, chat_ID)
+        print(chat_ID)
         message = msg['text']
         
         if message == "/start":
