@@ -88,7 +88,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
 
         CompleteTopic = ServiceTopic + '/' +rc["base_topic"] + '/' + conf_sensor['sensor_type'][0] + '/' + conf_sensor["ID_sensor"]
         body_dic = {
-            "sensortype": conf_sensor['sensor_type'],
+            "sensortype": conf_sensor['sensor_type'][0],
             "ID_sensor": conf_sensor['ID_sensor'],
             "patient": rc["patient"],
             "measure": conf_sensor["measure"],
@@ -104,7 +104,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
         Result_Dict = {
-            "sensortype": conf_sensor["sensor_type"],
+            "sensortype": conf_sensor["sensor_type"][0],
             "clientID": rc["base_topic"],
             "sensorID": conf_sensor["ID_sensor"],
             "topic": CompleteTopic,

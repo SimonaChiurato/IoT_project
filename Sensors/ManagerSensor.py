@@ -47,11 +47,9 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
     def run(self):
         self.client.start()
-        print('{} has started'.format(self.clientID))
 
     def end(self):
         self.client.stop()
-        print('{} has stopped'.format(self.clientID))
 
     def follow(self, topic):
         self.client.mySubscribe(topic)
@@ -75,8 +73,8 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
 
 if __name__ == '__main__':
-    config = json.load(open(sys.argv[1]))
-    Home_info = json.load(open("service_catalog_info.json"))
+    config = json.load(open(sys.argv[1])) #resource settings
+    Home_info = json.load(open("HomeCatalog_settings.json"))
     coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"])
 
     conf = {
@@ -87,8 +85,8 @@ if __name__ == '__main__':
     }
     cherrypy.tree.mount(coll, '/', conf)
     cherrypy.config.update(conf)
-    cherrypy.config.update({"server.socket_host": config["ip"]})
-    cherrypy.config.update({"server.socket_port": config["port"]})
+    cherrypy.config.update({"server.socket_host": config["ip_address"]})
+    cherrypy.config.update({"server.socket_port": config["ip_port"]})
     cherrypy.engine.start()
 
     coll.run()
