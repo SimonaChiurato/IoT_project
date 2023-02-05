@@ -11,7 +11,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
     exposed = True
 
     def __init__(self, baseTopic, broker, port):
-        self.clientID = "sensor_sub1"
+        self.clientID = "subscriber"
         self.baseTopic = baseTopic
         self.client = MyMQTT(self.clientID, broker, port, self)
         self.register = []
@@ -23,16 +23,15 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
             print("\n\n")
 
             for entry in self.register:
-                print(entry['e'][0]["room"], entry["e"][0]["type"], parameters["room_name"], parameters["sensor_type"],
-                      entry["e"][0]["owner"])
-                if entry['e'][0]["room"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
+                print(entry['e'][0]["patient"], entry["e"][0]["type"], parameters["room_name"], parameters["sensor_type"])
+                if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
                     "sensor_type"] and parameters["check"] == "value":  # modifica fatta per il telegram warning
                     output = entry["e"][0]["value"]
                     print("MESSAGE SENT!\n")
                     return output
 
-                elif entry['e'][0]["room"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
-                    "sensor_type"] and parameters["check"] == "all" and entry["e"][0]["owner"] == parameters["owner"]:
+                elif entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
+                    "sensor_type"] and parameters["check"] == "all":
 
                     output = entry["e"][0]["value"] + ' ' + entry["e"][0]["unit"] + ' ' + str(
                         datetime.utcfromtimestamp(int(round(float(entry["e"][0]["timestamp"]), 0)))) + ' UTC'
@@ -56,24 +55,20 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
     def notify(self, topic, msg):
         payload = json.loads(msg)
-        result = payload
-        result_dict = json.loads(result)
 
         flag = 0
         for entry in self.register:
-            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["room"] == result_dict["e"][0][
-                'room'] and entry["e"][0]['owner'] == result_dict["e"][0]['owner']:
-                entry["e"][0]['value'] = result_dict["e"][0]['value']
-                entry["e"][0]['owner'] = result_dict["e"][0]['owner']
-                entry["e"][0]['timestamp'] = result_dict["e"][0]['timestamp']
-                entry["e"][0]["room"] = result_dict["e"][0]["room"]
+            if entry["e"][0]['type'] == payload["e"][0]['type'] and entry["e"][0]["patient"] == payload["e"][0]['patient']:
+                entry["e"][0]['value'] = payload["e"][0]['value']
+                entry["e"][0]['time'] = payload["e"][0]['time']
+                entry["e"][0]["patient"] = payload["e"][0]["patient"]
                 flag = 1
         if flag == 0:
-            self.register.append(result_dict)
+            self.register.append(payload)
 
 
 if __name__ == '__main__':
-    config = json.load(open(sys.argv[1])) #resource settings
+    config = json.load(open(sys.argv[1])) #manager sensor settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
     coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"])
 

@@ -8,11 +8,11 @@ import sys
 
         
 class EchoBot1:
-    def __init__(self, token, Home_catalog_settings):
+    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings):
         
         self.tokenBot = token
         self.Home_catalog_settings = json.load(open(Home_catalog_settings))
-
+        self.Manager_sensor_settings = json.load(open(Manager_sensor_settings))
         self.bot = telepot.Bot(self.tokenBot)
         MessageLoop(self.bot, {'chat': self.on_chat_message,
                                'callback_query': self.on_callback_query}).run_as_thread()
@@ -34,10 +34,6 @@ class EchoBot1:
             self.rooms.append({"room_name":entry["patient"],
                 "room_sensors":sensors
                 })
-           
-        self.chosen_room=0
-        self.requested_room=''
-        self.r=''
         
     def on_chat_message(self, msg):
         content_type, chat_type, chat_ID = telepot.glance(msg)
@@ -75,6 +71,7 @@ class EchoBot1:
                 found = 0
                 for room in self.rooms:
                     if params[0] + ' ' + params[1] == room['room_name']:
+                        self.chosen_patient = room['room_name']
                         found = 1
                         buttons = []
                         for sensor in room["room_sensors"]:
@@ -94,7 +91,8 @@ class EchoBot1:
         message = query_data
 
         if message == 'temperature':
-            value=requests.get("http://"+sys.argv[1]+"/?owner="+self.requested_owner+"&room_name="+self.requested_room+"&sensor_type="+message+"&check=all")
+            value = requests.get("http://"+str(self.Manager_sensor_settings['ip_address']) + ':' + str(self.Manager_sensor_settings[ 'ip_port']) +
+                               "/?room_name="+self.chosen_patient+"&sensor_type="+message)
                  #GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
 
             print(value.text, "\n", "\n")
@@ -175,9 +173,10 @@ class EchoBot1:
 
 if __name__ == "__main__":
     conf = json.load(open("settings.json"))
+    conf_sensor = "ManagerSensor_settings.json"
     token = conf["telegramToken"]
-    Home_catalog_settings = ("HomeCatalog_settings.json")
-    bot = EchoBot1(token, Home_catalog_settings)
+    Home_catalog_settings = "HomeCatalog_settings.json"
+    bot = EchoBot1(token, Home_catalog_settings, conf_sensor)
 
     print("Bot started ...")
     while True:
