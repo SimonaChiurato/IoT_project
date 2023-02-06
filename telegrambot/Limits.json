@@ -1,0 +1,32 @@
+[
+    {
+        "sensor_type":"temperature",
+        "min":18,
+        "max":26,
+        "max_good":20,
+        "measure":"Celsius degrees"
+    },
+    {
+        "sensor_type":"humidity",
+        "min":40,
+        "max":60,
+        "max_good":50,
+        "measure":"%"
+    },
+
+    {
+        "sensor_type":"body_temperature",
+        "min":32,
+        "max":35,
+        "max_good":39,
+        "measure":"Celsius degrees"
+    },
+
+    {
+        "sensor_type":"heart_rate",
+        "min":40,
+        "max":79,
+        "max_good":180,
+        "measure":"bpm"
+    }
+]
