@@ -17,32 +17,28 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         self.register = []
 
     def GET(self, *uri, **parameters):  # METHOD FOR HANDLING THE REQUEST FROM APPLICATIONS
-        if len(parameters) >= 2:
+        if len(parameters) >= 1:
             print("TELEGRAM GET REQUEST RECEIVED!\n")
-            print(self.register)
             print("\n\n")
-
-            for entry in self.register:
-                print(entry['e'][0]["patient"], entry["e"][0]["type"], parameters["room_name"], parameters["sensor_type"])
-                if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
-                    "sensor_type"] and parameters["check"] == "value":  # modifica fatta per il telegram warning
-                    output = entry["e"][0]["value"]
-                    print("MESSAGE SENT!\n")
-                    return output
-
-                elif entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
-                    "sensor_type"] and parameters["check"] == "all":
-
-                    output = entry["e"][0]["value"] + ' ' + entry["e"][0]["unit"] + ' ' + str(
-                        datetime.utcfromtimestamp(int(round(float(entry["e"][0]["timestamp"]), 0)))) + ' UTC'
-                    print("MESSAGE SENT!\n")
-                    return output
-
-            print("MESSAGE SENT!\n")
-            return "NOT FOUND"
-        else:
-            error_string = "incorrect URI" + len(uri)
-            raise cherrypy.HTTPError(400, error_string)
+            if parameters["check"] == "value":
+                for entry in self.register:
+                    if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters["sensor_type"]:  # modifica fatta per il telegram warning
+                        output = (entry["e"][0]["type"] + ': ' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0]["unit"])
+                        print("MESSAGE SENT!\n")
+                        return json.dumps(output)
+                print("ERROR MESSAGE SENT!\n")
+                return "NOT FOUND"
+            elif parameters["check"] == "all":
+                output = []
+                for entry in self.register:
+                    if entry['e'][0]["patient"] == parameters["room_name"]:
+                        output.append(entry["e"][0]["type"] + ':' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0]["unit"] + ' ' + str(
+                            datetime.utcfromtimestamp(int(round(float(entry["e"][0]["time"]), 0)))) + ' UTC\n')
+                        print("MESSAGE SENT!\n")
+                return output
+            else:
+                error_string = "incorrect URI" + len(uri)
+                raise cherrypy.HTTPError(400, error_string)
 
     def run(self):
         self.client.start()
@@ -55,16 +51,17 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
     def notify(self, topic, msg):
         payload = json.loads(msg)
-
+        result = payload
+        result_dict = json.loads(result)
         flag = 0
         for entry in self.register:
-            if entry["e"][0]['type'] == payload["e"][0]['type'] and entry["e"][0]["patient"] == payload["e"][0]['patient']:
-                entry["e"][0]['value'] = payload["e"][0]['value']
-                entry["e"][0]['time'] = payload["e"][0]['time']
-                entry["e"][0]["patient"] = payload["e"][0]["patient"]
+            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0]['patient']:
+                entry["e"][0]['value'] = result_dict["e"][0]['value']
+                entry["e"][0]['time'] = result_dict["e"][0]['time']
+                entry["e"][0]["patient"] = result_dict["e"][0]["patient"]
                 flag = 1
         if flag == 0:
-            self.register.append(payload)
+            self.register.append(result_dict)
 
 
 if __name__ == '__main__':
@@ -80,8 +77,8 @@ if __name__ == '__main__':
     }
     cherrypy.tree.mount(coll, '/', conf)
     cherrypy.config.update(conf)
-    cherrypy.config.update({"server.socket_host": config["ip_address"]})
-    cherrypy.config.update({"server.socket_port": config["ip_port"]})
+    cherrypy.config.update({"server.socket_host": config["ip"]})
+    cherrypy.config.update({"server.socket_port": config["port"]})
     cherrypy.engine.start()
 
     coll.run()

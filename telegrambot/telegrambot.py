@@ -19,7 +19,6 @@ class EchoBot1:
 
         Home_get_string = "http://"+self.Home_catalog_settings["ip_address"]+":"+str(self.Home_catalog_settings["ip_port"])+"/resource_catalogs"
         rooms_all = json.loads(requests.get(Home_get_string).text)
-        print(rooms_all)
         self.rooms = []
 
         for entry in rooms_all:
@@ -27,17 +26,17 @@ class EchoBot1:
             devices=json.loads(requests.get(request_string).text)
             sensors=[]
             for dev in devices:
-                print(dev['sensortype'])
-                for type in dev["sensortype"]:
-                    sensors.append(type)
-
+                if dev["ID_sensor"] == 'sensor_th_1':
+                    for type in dev['sensortype']:
+                        sensors.append(type)
+                else:
+                    sensors.append(dev['sensortype'])
             self.rooms.append({"room_name":entry["patient"],
                 "room_sensors":sensors
                 })
         
     def on_chat_message(self, msg):
         content_type, chat_type, chat_ID = telepot.glance(msg)
-        print(chat_ID)
         message = msg['text']
         
         if message == "/start":
@@ -59,7 +58,7 @@ class EchoBot1:
                         buttons.append(
                             [InlineKeyboardButton(text=room_name['room_name'], callback_data=room_name['room_name'])])
                     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-                    self.bot.sendMessage(chat_ID, text='Which owner are you interested in?', reply_markup=keyboard)
+                    self.bot.sendMessage(chat_ID, text='Which patient are you interested in?', reply_markup=keyboard)
                 else:
                     self.bot.sendMessage(chat_ID, 'Insert correct password')
 
@@ -74,8 +73,8 @@ class EchoBot1:
                         self.chosen_patient = room['room_name']
                         found = 1
                         buttons = []
+                        buttons.append([InlineKeyboardButton(text='All sensor', callback_data= 'all')])
                         for sensor in room["room_sensors"]:
-                            print(sensor)
                             buttons.append([InlineKeyboardButton(text= sensor, callback_data= sensor)])
                         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
                         self.bot.sendMessage(chat_ID, text='Which sensor are you interested in?', reply_markup=keyboard)
@@ -90,36 +89,19 @@ class EchoBot1:
         query_ID , chat_ID , query_data = telepot.glance(msg,flavor='callback_query')
         message = query_data
 
-        if message == 'temperature':
-            value = requests.get("http://"+str(self.Manager_sensor_settings['ip_address']) + ':' + str(self.Manager_sensor_settings[ 'ip_port']) +
-                               "/?room_name="+self.chosen_patient+"&sensor_type="+message)
+        if message == 'temperature' or message == 'humidity' or message == 'body_temperature' or message == 'heart_rate':
+            value = requests.get("http://"+str(self.Manager_sensor_settings['ip']) + ':' + str(self.Manager_sensor_settings['port']) +
+                               "/?room_name="+self.chosen_patient+"&sensor_type="+message+"&check=value")
                  #GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
 
-            print(value.text, "\n", "\n")
             self.bot.sendMessage(chat_ID, text=value.text)
             self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
 
-        if message == 'humidity':
-            value=requests.get("http://"+sys.argv[1]+"/?owner="+self.requested_owner+"&room_name="+self.requested_room+"&sensor_type="+message+"&check=all")
+        if message == 'all':
+            value = requests.get("http://"+str(self.Manager_sensor_settings['ip']) + ':' + str(self.Manager_sensor_settings['port']) +
+                               "/?room_name="+self.chosen_patient+"&check=all")
                  #GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
 
-            print(value.text, "\n", "\n")
-            self.bot.sendMessage(chat_ID, text=value.text)
-            self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
-
-        if message == 'body temperature':
-            value=requests.get("http://"+sys.argv[1]+"/?owner="+self.requested_owner+"&room_name="+self.requested_room+"&sensor_type="+message+"&check=all")
-                 #GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
-
-            print(value.text, "\n", "\n")
-            self.bot.sendMessage(chat_ID, text=value.text)
-            self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
-
-        if message == 'heart rate':
-            value=requests.get("http://"+sys.argv[1]+"/?owner="+self.requested_owner+"&room_name="+self.requested_room+"&sensor_type="+message+"&check=all")
-                 #GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
-
-            print(value.text, "\n", "\n")
             self.bot.sendMessage(chat_ID, text=value.text)
             self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
         # if self.chosen_owner==0:
@@ -173,7 +155,7 @@ class EchoBot1:
 
 if __name__ == "__main__":
     conf = json.load(open("settings.json"))
-    conf_sensor = "ManagerSensor_settings.json"
+    conf_sensor = "Subscriber.json"
     token = conf["telegramToken"]
     Home_catalog_settings = "HomeCatalog_settings.json"
     bot = EchoBot1(token, Home_catalog_settings, conf_sensor)
