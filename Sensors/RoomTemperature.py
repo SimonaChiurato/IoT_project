@@ -74,6 +74,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home['ip_port']) + '/info_room?patient=' + patient
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
+    print(rc)
     print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
 
     if rc == 0:
@@ -85,8 +86,26 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         ServiceTopic = requests.get(request)
         ServiceTopic = json.loads(ServiceTopic.text)
         CompleteTopic = []
-        BodyMessage = []
-        model = 0
+        for i in conf_sensor["sensor_type"]:
+            print(i)
+            CompleteTopic.append(ServiceTopic + '/' + rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
+        body_dic = {
+            "sensortype": conf_sensor['sensor_type'],
+            "ID_sensor": conf_sensor['ID_sensor'],
+            "patient": rc["patient"],
+            "measure": conf_sensor["measure"],
+            "communication": {
+                "basetopic": ServiceTopic + '/' + rc["base_topic"],
+                "complete_topic": CompleteTopic,
+                "broker": rc["broker"],
+                "port": rc["broker_port"]
+            }
+        }
+        requests.post(post, json.dumps(body_dic))
+        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
+
+
+        '''
         for i in conf_sensor["sensor_type"]:
             print(i)
             CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
@@ -95,7 +114,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
                 "ID_sensor": conf_sensor['ID_sensor'],
                 "patient": rc["patient"],
                 "measure": conf_sensor["measure"][model],
-                "comunication": {
+                "communication": {
                     "basetopic": ServiceTopic + '/' + rc["base_topic"],
                     "complete_topic": CompleteTopic,
                     "broker": rc["broker"],
@@ -106,6 +125,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
             requests.post(post, json.dumps(BodyMessage[model]))
             print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
             model = model + 1
+        '''
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"],

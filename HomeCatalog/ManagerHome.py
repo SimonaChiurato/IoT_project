@@ -39,7 +39,7 @@ class ManagerHome(object):
         else:
             error_string = "incorrect URI or PARAMETERS URI" + {len(uri)} + "PAR" + {len(params)}           #cambia stringa
             raise cherrypy.HTTPError(400, error_string)
-
+    '''
     def POST(self, *uri):
         if len(uri) == 0:
             body = cherrypy.request.body.read()
@@ -49,7 +49,7 @@ class ManagerHome(object):
         else:
             error_string = "incorrect URI or PARAMETERS" + {len(uri)}
             raise cherrypy.HTTPError(400, error_string)
-
+    '''
 
     def PUT(self, *uri):
         if len(uri) == 0:
@@ -58,7 +58,7 @@ class ManagerHome(object):
             json_body = json.loads(body)
             result = self.CM.updateResCat(json_body)
             with open("HomeCatalog_settings.json", "w") as f:
-                json.dump(result, f)
+                json.dump(result, f, indent=4)
         else:
             error_string = "incorrect URI or PARAMETERS" + {len(uri)}
             raise cherrypy.HTTPError(400, error_string)

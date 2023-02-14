@@ -92,7 +92,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
             "ID_sensor": conf_sensor['ID_sensor'],
             "patient": rc["patient"],
             "measure": conf_sensor["measure"],
-            "comunication": {
+            "communication": {
                 "basetopic": ServiceTopic + '/' + rc["base_topic"],
                 "complete_topic": CompleteTopic,
                 "broker": rc["broker"],

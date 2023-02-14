@@ -1,0 +1,94 @@
+{
+  "temperature": [
+    {
+      "sensortype": [
+        "temperature",
+        "humidity"
+      ],
+      "ID_sensor": "sensor_th_1",
+      "patient": "Martino Conversano",
+      "measure": [
+        "Celsius degrees",
+        "%"
+      ],
+      "communication": {
+        "basetopic": "molinette/martino_conversano",
+        "complete_topic": [
+          "molinette/martino_conversano/temperature/sensor_th_1",
+          "molinette/martino_conversano/humidity/sensor_th_1"
+        ],
+        "broker": "test.mosquitto.org",
+        "port": 1883
+      },
+      "insert-timestamp": 1676388492.4568338
+    },
+    {
+      "sensortype": [
+        "temperature",
+        "humidity"
+      ],
+      "ID_sensor": "sensor_th_1",
+      "patient": "Simona Cirone",
+      "measure": [
+        "Celsius degrees",
+        "%"
+      ],
+      "communication": {
+        "basetopic": "molinette/simona_chiurato",
+        "complete_topic": [
+          "molinette/simona_chiurato/temperature/sensor_th_1",
+          "molinette/simona_chiurato/humidity/sensor_th_1"
+        ],
+        "broker": "test.mosquitto.org",
+        "port": 1883
+      },
+      "insert-timestamp": 1676388505.745346
+    }
+  ],
+  "humidity": [
+    {
+      "sensortype": [
+        "temperature",
+        "humidity"
+      ],
+      "ID_sensor": "sensor_th_1",
+      "patient": "Martino Conversano",
+      "measure": [
+        "Celsius degrees",
+        "%"
+      ],
+      "communication": {
+        "basetopic": "molinette/martino_conversano",
+        "complete_topic": [
+          "molinette/martino_conversano/temperature/sensor_th_1",
+          "molinette/martino_conversano/humidity/sensor_th_1"
+        ],
+        "broker": "test.mosquitto.org",
+        "port": 1883
+      },
+      "insert-timestamp": 1676388492.4568338
+    },
+    {
+      "sensortype": [
+        "temperature",
+        "humidity"
+      ],
+      "ID_sensor": "sensor_th_1",
+      "patient": "Simona Cirone",
+      "measure": [
+        "Celsius degrees",
+        "%"
+      ],
+      "communication": {
+        "basetopic": "molinette/simona_chiurato",
+        "complete_topic": [
+          "molinette/simona_chiurato/temperature/sensor_th_1",
+          "molinette/simona_chiurato/humidity/sensor_th_1"
+        ],
+        "broker": "test.mosquitto.org",
+        "port": 1883
+      },
+      "insert-timestamp": 1676388505.745346
+    }
+  ]
+}
