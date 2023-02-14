@@ -90,5 +90,20 @@
       },
       "insert-timestamp": 1676388505.745346
     }
+  ],
+  "heart_rate": [
+    {
+      "sensortype": "heart_rate",
+      "ID_sensor": "sensor_heart_rate",
+      "patient": "Martino Conversano",
+      "measure": "bpm",
+      "communication": {
+        "basetopic": "molinette/martino_conversano",
+        "complete_topic": "molinette/martino_conversano/heart_rate/sensor_heart_rate",
+        "broker": "test.mosquitto.org",
+        "port": 1883
+      },
+      "insert-timestamp": 1676389552.8541863
+    }
   ]
 }

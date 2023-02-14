@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  home-catalog:
+    build:
+      context: ./HomeCatalog
+      dockerfile: Dockerfile
+    command: python ManagerHome.py
+    ports:
+      - "8095:8095"
+  resource-catalog:
+    build:
+       context: ./ResourceCatalog
+       dockerfile: Dockerfile
+    command: python ManagerResource_new.py ResourceCatalog_settings.json ResourceCatalog_info.json
+    ports:
+      - "8081:8081"
+  room-temperature-control:
+      build:
+        context: ./Sensors
+        dockerfile: Dockerfile
+      command: python RoomTemperatureControl.py Room_Temperature_settings.json
+  room-temperature:
+      build:
+        context: ./Sensors
+        dockerfile: Dockerfile
+      command: python RoomTemperature.py Room_Temperature_settings.json
+      ports:
+        - "8089:8089"
+  heart-rate:
+      build:
+        context: ./Sensors
+        dockerfile: Dockerfile
+      command: python HeartRate.py HeartRate_settings.json
+      ports:
+        - "8087:8087"
