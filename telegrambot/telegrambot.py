@@ -5,10 +5,22 @@ import json
 import requests
 import time
 import sys
+from MyMQTT import *
 
         
 class EchoBot1:
-    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, Limits):
+    def __init__(self, token, broker, port, topic, Home_catalog_settings, Manager_sensor_settings, Limits):
+        
+        ''' aggiunto ieri'''
+        self.client = MyMQTT("telegramBotSH", broker, port, None)
+        self.client.start()
+        self.topic = topic
+        #self.__message = {'bn': "telegramBot",
+       #                   'e':
+       #                   [
+       #                   {'n': 'switch', 'v': '', 't': '', 'u': 'bool'},
+       #                   ]
+       #                   }
         
         self.tokenBot = token
         self.Home_catalog_settings = json.load(open(Home_catalog_settings))
