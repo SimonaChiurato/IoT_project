@@ -1,0 +1,6 @@
+{
+    "ip":"127.0.0.1",
+    "port":8088,
+    "broker": "test.mosquitto.org",
+    "broker_port": 1883
+}
