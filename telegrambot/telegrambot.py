@@ -15,8 +15,8 @@ class EchoBot1:
     def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, infoPatients):
 
         self.tokenBot = token
-        self.Home_catalog_settings = json.load(open(Home_catalog_settings))
-        # self.Manager_sensor_settings = json.load(open(Manager_sensor_settings))
+        self.Home_catalog_settings = Home_catalog_settings
+        self.Manager_sensor_settings = Manager_sensor_settings
         self.infoPatients = json.load(open(infoPatients))
         self.bot = telepot.Bot(self.tokenBot)
         MessageLoop(self.bot, {'chat': self.on_chat_message,
@@ -28,24 +28,7 @@ class EchoBot1:
         self.rooms = []
 
         self.clientID = 'telegramsubscriber'
-
         self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'], self)
-
-
-        def run(self):
-            self.client.start()
-
-        def end(self):
-            self.client.stop()
-
-        def follow(self, topic):
-            self.client.mySubscribe(topic)
-
-        def notify(self, topic, msg):
-            payload = json.loads(msg)
-            warning_dict = json.loads(payload)
-
-
         # noi ora abbiamo lista di sensori, dobbiamo salvare i pazienti
         request_string = "http://" + rc_info["ip_address"] + ":" + str(rc_info["ip_port"]) + "/all"
         patients = json.loads(requests.get(request_string).text)
@@ -60,6 +43,21 @@ class EchoBot1:
                     sensors.append(dev['sensortype'])
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
+    def run(self):
+        self.client.start()
+
+    def end(self):
+        self.client.stop()
+
+    def follow(self, topic):
+        self.client.mySubscribe(topic)
+
+    def notify(self, topic, msg):
+        payload = json.loads(msg)
+        warning_dict = json.loads(payload)
+
+
+
 
     # fare il controllo e salvataggio id
     def checkRegistration(self, chat_ID):
@@ -123,8 +121,9 @@ class EchoBot1:
     def on_chat_message(self, msg):
         content_type, chat_type, chat_ID = telepot.glance(msg)
         message = msg['text']
-
-        if self.checkRegistration(chat_ID) or message.startswith("/data"):
+        print(message)
+        print(self.checkRegistration(chat_ID))
+        if self.checkRegistration(chat_ID) or message == "/data":
             if self.checkDoctor(chat_ID):
                 buttons = []
                 for room_name in self.rooms:
@@ -247,15 +246,15 @@ class EchoBot1:
 
 if __name__ == "__main__":
     conf = json.load(open("settings.json"))
-    conf_sensor = "Subscriber.json"
+    Manager_sensor_settings = json.load(open("Subscriber.json"))
     token = conf["telegramToken"]
-    Home_catalog_settings = "HomeCatalog_settings.json"
+    Home_catalog_settings = json.load(open("HomeCatalog_settings.json"))
     infoPatients = "infoPatients.json"
-    bot = EchoBot1(token, Home_catalog_settings, conf_sensor, infoPatients)
+    bot = EchoBot1(token, Home_catalog_settings, Manager_sensor_settings, infoPatients)
 
     bot.run()
     bot.client.unsubscribe()
-    result = bot.follow(bot.baseTopic + '/emergency/#')
+    result = bot.follow(Home_catalog_settings["base_topic"] + '/emergency/#')
     #bot.end
 
 
