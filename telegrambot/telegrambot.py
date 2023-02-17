@@ -63,30 +63,43 @@ class EchoBot1:
     def follow(self, topic):
       self.client.mySubscribe(topic)
 
+
+   
+    def run(self):
+        self.client.start()
+
+    def end(self):
+        self.client.stop()
+
+    def follow(self, topic):
+        self.client.mySubscribe(topic)
+
     def notify(self, topic, msg):
-      payload = json.loads(msg)
-      warning_dict = json.loads(payload['e'][0])
+        payload = json.loads(msg)
+        warning_dict = json.loads(payload)
 
-      chatID_doc= []
-      for p in self.infoPatients['patients'].values():
-          if p == warning_dict['patient']:
-              chat_ID = p["chatID"]
+        chatID_doc= []
 
-      for p in self.infoPatients['doctors'].values():
-          chatID_doc.append(p["chatID"])
+        for p in self.infoPatients['patients'].values():
+            if p == warning_dict['patient']:
+                chat_ID = p["chatID"]
 
-      if warning_dict['warning'] == 'min':
-          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-          for d in chatID_doc:
-              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-      if warning_dict['warning'] == 'max':
-          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-          for d in chatID_doc:
-              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-      if warning_dict['warning'] == 'max_good':
-          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-          for d in chatID_doc:
-              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+
+        for p in self.infoPatients['doctors'].values():
+            chatID_doc.append(p["chatID"])
+
+        if warning_dict['warning'] == 'min':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+        if warning_dict['warning'] == 'max':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+        if warning_dict['warning'] == 'max_good':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
 
 
     # fare il controllo e salvataggio id
