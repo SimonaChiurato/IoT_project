@@ -8,11 +8,14 @@ import sys
 from MyMQTT import *
 
 
+
+
 class EchoBot1:
+
     exposed = True
 
-    
     def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, infoPatients):
+
 
         self.tokenBot = token
 
@@ -31,36 +34,72 @@ class EchoBot1:
         self.rooms = []
 
         self.clientID = 'telegramsubscriber'
-        self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'], self)
+
+        self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'],
+                             self)
+
+        request_string = "http://" + rc_info["ip_address"] + ":" + str(rc_info["ip_port"]) + "/all"
+        patients = json.loads(requests.get(request_string).text)
+        print(patients)
+        for patient in patients.values():
+            print(patient)
+            sensors = []
+            for dev in patient:
+                if dev["ID_sensor"] == 'sensor_th_1':
+                    for type in dev['sensortype']:
+                        sensors.append(type)
+                else:
+                    sensors.append(dev['sensortype'])
+            # Which sensors are in the room of patient X
+            self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
 
 
+    def run(self):
+        self.client.start()
 
-        def run(self):
-            self.client.start()
+    def end(self):
+      self.client.stop()
 
-        def end(self):
-            self.client.stop()
-
-        def follow(self, topic):
-            self.client.mySubscribe(topic)
-
-        def notify(self, topic, msg):
-            payload = json.loads(msg)
-            warning_dict = json.loads(payload)
-            
-            chatID_doc= []
-
-            for p in self.infoPatients['patients'].values():
-                if p == warning_dict['patient']:
-                    chat_ID = p["chatID"]
-
-               
-            for p in self.infoPatients['doctors'].values():
-                
-                chatID_doc.append
-                   
+    def follow(self, topic):
+      self.client.mySubscribe(topic)
 
 
+   
+    def run(self):
+        self.client.start()
+
+    def end(self):
+        self.client.stop()
+
+    def follow(self, topic):
+        self.client.mySubscribe(topic)
+
+    def notify(self, topic, msg):
+        payload = json.loads(msg)
+        warning_dict = json.loads(payload)
+
+        chatID_doc= []
+
+        for p in self.infoPatients['patients'].values():
+            if p == warning_dict['patient']:
+                chat_ID = p["chatID"]
+
+
+        for p in self.infoPatients['doctors'].values():
+            chatID_doc.append(p["chatID"])
+
+        if warning_dict['warning'] == 'min':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+        if warning_dict['warning'] == 'max':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+        if warning_dict['warning'] == 'max_good':
+            self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+            for d in chatID_doc:
+                self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
 
 
     # fare il controllo e salvataggio id
@@ -84,7 +123,6 @@ class EchoBot1:
             if chat_ID == p["chatID"]:
                 return p["name"]
         return ""
-
 
     def registration(self, chat_ID, message):
         if message.startswith('/Doctor'):
@@ -125,9 +163,8 @@ class EchoBot1:
     def on_chat_message(self, msg):
         content_type, chat_type, chat_ID = telepot.glance(msg)
         message = msg['text']
-        print(message)
-        print(self.checkRegistration(chat_ID))
         if self.checkRegistration(chat_ID) or message == "/data":
+
             if self.checkDoctor(chat_ID):
                 buttons = []
                 for room_name in self.rooms:
@@ -138,9 +175,12 @@ class EchoBot1:
                 self.bot.sendMessage(chat_ID, text='Which patient are you interested in?',
                                      reply_markup=keyboard)
             else:
+                print(self.rooms)
                 for room in self.rooms:
+                    print(self.findPatient(chat_ID))
+                    print(room['room_name'])
                     if self.findPatient(chat_ID) == room['room_name']:
-                        self.chosen_patient = room['room_name']
+                        chosen_patient = room['room_name']
                         buttons = []
                         buttons.append([InlineKeyboardButton(text='All sensor', callback_data='all')])
                         for sensor in room["room_sensors"]:
@@ -243,8 +283,6 @@ class EchoBot1:
                 self.bot.sendMessage(chat_ID, 'Insert correct name and surname')
 
 
-
-
 if __name__ == "__main__":
     conf = json.load(open("settings.json"))
     Manager_sensor_settings = json.load(open("Subscriber.json"))
@@ -256,13 +294,8 @@ if __name__ == "__main__":
     bot.run()
     bot.client.unsubscribe()
     result = bot.follow(Home_catalog_settings["base_topic"] + '/emergency/#')
-    #bot.end
-
+    # bot.end
 
     print("Bot started ...")
     while True:
         time.sleep(3)
-    
-   
-
-   
