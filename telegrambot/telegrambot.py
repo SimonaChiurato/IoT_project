@@ -54,9 +54,17 @@ class EchoBot1:
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
 
 
+    def run(self):
+        self.client.start()
+
+    def end(self):
+      self.client.stop()
+
+    def follow(self, topic):
+      self.client.mySubscribe(topic)
 
 
-
+   
     def run(self):
         self.client.start()
 
@@ -172,7 +180,7 @@ class EchoBot1:
                     print(self.findPatient(chat_ID))
                     print(room['room_name'])
                     if self.findPatient(chat_ID) == room['room_name']:
-                        self.chosen_patient = room['room_name']
+                        chosen_patient = room['room_name']
                         buttons = []
                         buttons.append([InlineKeyboardButton(text='All sensor', callback_data='all')])
                         for sensor in room["room_sensors"]:
