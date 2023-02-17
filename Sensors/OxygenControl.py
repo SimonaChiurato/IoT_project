@@ -3,7 +3,7 @@ import requests
 import time
 import cherrypy
 import sys
-
+# un post al sensore che dice di aumentare/diminuire ossigeno
 
 class TemperatureServer:
     exposed = True
