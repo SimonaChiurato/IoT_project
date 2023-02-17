@@ -134,9 +134,6 @@ class EchoBot1:
             self.bot.sendMessage(chat_ID, text=value.text)
             self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
 
-        if message == 'stop':
-            print('ricevuto')
-            self.stop = True
 
         if message.startswith('Patient'):
             params = message.split()[1:]
