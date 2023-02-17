@@ -41,8 +41,8 @@ un catalog è una stanza, con una lista di sensori. Ogni catalog ha un paziente 
     def addSensor(self, sensor):
         sensor['insert-timestamp'] = time.time()
         if sensor['patient'] not in self.sensors.keys():
-            self.sensors['patient'] = []
-        self.sensors['patient'].append(sensor)
+            self.sensors[sensor['patient']] = []
+        self.sensors[sensor['patient']].append(sensor)
         '''
         if isinstance(sensor['sensortype'], list):
             for t in sensor['sensortype']:
