@@ -1,44 +1,54 @@
 import json
-import requests
+from MyMQTT import *
 import time
 import cherrypy
+from datetime import datetime
 import sys
-# un post al sensore che dice di aumentare/diminuire ossigeno
-
-class TemperatureServer:
-    exposed = True
-
-    def POST(self):  # RECEIVING THE MESSAGE FROM SENSOR TEMPERATURE IN ORDER TO MAKE SOMETHING
-        body = json.loads(cherrypy.request.body.read())
-        patient = body['Patient']
-        Temperature = body['Temperature']
-        Humidity = body['Humidity']
-
-        if Temperature < 18:
-            #warning telegram
-            print("Fa freddo dal paziente " + patient + ". Temperature: " + str(Temperature))
-        elif Temperature > 25:
-            print("Fa caldo dal paziente " + patient + ".Temperature: " + str(Temperature))
-
-        if Humidity < 40:
-            print("umidità troppo bassa dal paziente " + patient + ". Humidity: " + str(Humidity))
-        elif Humidity > 60:
-            print("umidità troppo alta dal paziente " + patient + ". Humidity: " + str(Humidity))
-           # print("umidità troppo alta dal paziente " + patient + ". Humidity: " + str(Humidity))
 
 
+class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS AS A SERVER FOR PROVIDING INFORMATION TO THE APPLICATIONS
+
+    def __init__(self, baseTopic, broker, port):
+        self.clientID = "emergency"
+        self.baseTopic = baseTopic
+        self.value = 0
+        self.client = MyMQTT(self.clientID, broker, port, self)
+
+    def run(self):
+        self.client.start()
+
+    def end(self):
+        self.client.stop()
+
+    def follow(self, topic):
+        self.client.mySubscribe(topic)
+
+    def notify(self, topic, msg):
+        payload = json.loads(msg)
+        result = payload
+        result_dict = json.loads(result)
+        if warning_dict['warning'] == 'min':
+            if self.value < 5:
+                self.value = self.value + 1
+                print('Livello ossigeno erogato:' + str(self.value))
+            else:
+                print('Ossigeno già erogato al livello massimo')
+        if warning_dict['warning'] == 'max' or warning_dict['warning'] == 'max_good':
+            if self.value > 0:
+                self.value = self.value - 1
+                print('Livello ossigeno erogato:' + str(self.value))
+            else:
+                print('Ossigeno già erogato al livello minimo')
 
 
-if __name__ == "__main__":
-    config = json.load(open(sys.argv[1]))
-    conf = {
-        '/': {
-            'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-            'tools.sessions.on': True,
-        }
-    }
-    cherrypy.tree.mount(TemperatureServer(), '/', conf)
-    cherrypy.config.update(conf)
-    cherrypy.config.update({"server.socket_host": config["server_ip"]})
-    cherrypy.config.update({"server.socket_port": config["server_port"]})
-    cherrypy.engine.start()
+
+
+if __name__ == '__main__':
+    config = json.load(open(sys.argv[1]))  # oxigen control settings
+    Home_info = json.load(open("HomeCatalog_settings.json"))
+    coll = OxigenControl(Home_info["base_topic"], config["broker"], config["broker_port"])
+    coll.run()
+    coll.client.unsubscribe()
+    result = coll.follow(coll.baseTopic + '/emergency/#')
+    cherrypy.engine.block()
+    coll.end()

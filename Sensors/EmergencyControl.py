@@ -36,13 +36,14 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
             print("\n\n")
             if parameters["check"] == "value":
                 for entry in self.register:
-                    print("par")
-                    # print(parameters)
-                    # print(entry)
-                    if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters[
-                        "sensor_type"]:  # modifica fatta per il telegram warning
-                        output = (entry["e"][0]["type"] + ': ' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0][
-                            "unit"])
+
+
+                    print(parameters)
+                    print(entry)
+                    
+                    if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters["sensor_type"]:  # modifica fatta per il telegram warning
+                        output = (entry["e"][0]["type"] + ': ' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0]["unit"])
+
                         print("MESSAGE SENT!\n")
                         return json.dumps(output)
                 print("ERROR MESSAGE SENT!\n")
