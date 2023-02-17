@@ -178,6 +178,4 @@ if __name__ == "__main__":
         print(Humidity )
         Sensor[1].publish(Humidity, dict['patient'])
         time.sleep(2)
-        dict2={'Patient':dict['patient'], 'Temperature':Temperature, 'Humidity': Humidity, }
-        poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-        requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
+

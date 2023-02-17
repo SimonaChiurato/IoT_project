@@ -53,18 +53,6 @@ class EchoBot1:
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
 
-
-    def run(self):
-        self.client.start()
-
-    def end(self):
-      self.client.stop()
-
-    def follow(self, topic):
-      self.client.mySubscribe(topic)
-
-
-   
     def run(self):
         self.client.start()
 
@@ -202,45 +190,6 @@ class EchoBot1:
             elif message.startswith("/Patient"):
                 self.registration(chat_ID, message)
 
-            elif message == "/Check_All":
-                self.bot.sendMessage(chat_ID, text='Start monitoring your patients')
-                self.stop = False
-                while not self.stop:
-
-                    for room in self.rooms:
-                        for dev in room["room_sensors"]:
-                            string = requests.get("http://" + str(self.Manager_sensor_settings['ip']) + ':' + str(
-                                self.Manager_sensor_settings['port']) +
-                                                  "/?room_name=" + room[
-                                                      'room_name'] + "&sensor_type=" + dev + "&check=value").text
-                            # GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
-                            value = int(string.split()[1])
-                            for l in self.limits:
-                                if dev == l["sensor_type"]:
-                                    if value < l["min"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is low for patient: " + room[
-                                                                 "room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-                                    elif value > l["max"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is very high for patient: " +
-                                                                  room["room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-                                    elif value > l["max_good"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is  high for patient: " + room[
-                                                                 "room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-
-                    button = InlineKeyboardButton(text='Stop', callback_data='stop')
-                    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-                    self.bot.sendMessage(chat_ID, text='Press to stop monitoring your patients', reply_markup=keyboard)
-                    time.sleep(10)
-                self.bot.sendMessage(chat_ID, text='Stop monitoring')
-
-            else:
-                self.bot.sendMessage(chat_ID, text="Command not supported")
 
     def on_callback_query(self, msg):
         query_ID, chat_ID, query_data = telepot.glance(msg, flavor='callback_query')
