@@ -106,6 +106,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 if __name__ == '__main__':
     config = json.load(open(sys.argv[1])) #manager sensor settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
+    Limits = "Limits.json"
     coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"])
 
     conf = {
