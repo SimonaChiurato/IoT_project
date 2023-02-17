@@ -10,11 +10,25 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
     exposed = True
 
-    def __init__(self, baseTopic, broker, port):
-        self.clientID = "subscriber"
+    def __init__(self, baseTopic, broker, port, Limits):
+        self.clientID = "emergency"
         self.baseTopic = baseTopic
         self.client = MyMQTT(self.clientID, broker, port, self)
         self.register = []
+        self.limits = json.load(open(Limits))
+        self.__message = {  #topic --> bn   message--> e !!!!!!
+            'bn': '',
+            'e': [
+                {
+                    'type': self.sensortype,
+                    'unit': self.sensormeasure,
+                    'patient': '',
+                    'value': '',
+                    'time': '',
+                    'warning': ''
+                }
+            ]
+        }
 
     def GET(self, *uri, **parameters):  # METHOD FOR HANDLING THE REQUEST FROM APPLICATIONS
         if len(parameters) >= 1:
@@ -53,6 +67,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         payload = json.loads(msg)
         result = payload
         result_dict = json.loads(result)
+        
         flag = 0
         for entry in self.register:
             if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0]['patient']:
@@ -62,6 +77,30 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
                 flag = 1
         if flag == 0:
             self.register.append(result_dict)
+
+        for l in self.limits:
+            if result_dict["e"][0]['type'] == l["sensor_type"]:
+                if result_dict["e"][0]['value'] < l["min"]:
+                    self.emergencypublish(result_dict, 'min')
+                    
+                elif result_dict["e"][0]['value'] > l["max"]:
+                    self.emergencypublish(result_dict, 'max')
+                    
+                elif result_dict["e"][0]['value'] > l["max_good"]:
+                    self.emergencypublish(result_dict, 'max_good')
+                    
+
+    def emergencypublish (self, result_dict, warning ):
+        message = self.__message
+        message['e'][0]['patient'] = result_dict["e"][0]['patient']
+        message['e'][0]['value'] = result_dict["e"][0]['value']
+        message['e'][0]['time'] = result_dict["e"][0]['time']
+        message['e'][0]['warning'] = warning
+        self.client.myPublish(self.baseTopic+"/emergency/"+result_dict["e"][0]['type'], json.dumps(message)) #TOPIC molinette/emergency/sensor_type
+        print("Published!\n" + json.dumps(message) + "\n")
+
+        
+
 
 
 if __name__ == '__main__':
