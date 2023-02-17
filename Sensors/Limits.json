@@ -17,7 +17,7 @@
     {
         "sensor_type":"body_temperature",
         "min":32,
-        "max":35,
+        "max":34,
         "max_good":39,
         "measure":"Celsius degrees"
     },

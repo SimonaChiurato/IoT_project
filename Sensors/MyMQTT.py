@@ -54,4 +54,9 @@ class MyMQTT:
         self._paho_mqtt.loop_stop()
         self._paho_mqtt.disconnect()
 
+    @property
+    def paho_mqtt(self):
+        return self._paho_mqtt
+
+
 

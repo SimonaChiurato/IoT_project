@@ -16,7 +16,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         self.client = MyMQTT(self.clientID, broker, port, self)
         self.register = []
         self.limits = json.load(open(Limits))
-        self.__message = {  #topic --> bn   message--> e !!!!!!
+        self.__message = {  # topic --> bn   message--> e !!!!!!
             'bn': '',
             'e': [
                 {
@@ -37,11 +37,13 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
             if parameters["check"] == "value":
                 for entry in self.register:
 
+
                     print(parameters)
                     print(entry)
                     
                     if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters["sensor_type"]:  # modifica fatta per il telegram warning
                         output = (entry["e"][0]["type"] + ': ' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0]["unit"])
+
                         print("MESSAGE SENT!\n")
                         return json.dumps(output)
                 print("ERROR MESSAGE SENT!\n")
@@ -50,7 +52,8 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
                 output = []
                 for entry in self.register:
                     if entry['e'][0]["patient"] == parameters["room_name"]:
-                        output.append(entry["e"][0]["type"] + ':' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0]["unit"] + ' ' + str(
+                        output.append(entry["e"][0]["type"] + ':' + str(entry["e"][0]["value"]) + ' ' + entry["e"][0][
+                            "unit"] + ' ' + str(
                             datetime.utcfromtimestamp(int(round(float(entry["e"][0]["time"]), 0)))) + ' UTC\n')
                         print("MESSAGE SENT!\n")
                 return output
@@ -71,10 +74,11 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         payload = json.loads(msg)
         result = payload
         result_dict = json.loads(result)
-        
+
         flag = 0
         for entry in self.register:
-            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0]['patient']:
+            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0][
+                'patient']:
                 entry["e"][0]['value'] = result_dict["e"][0]['value']
                 entry["e"][0]['time'] = result_dict["e"][0]['time']
                 entry["e"][0]["patient"] = result_dict["e"][0]["patient"]
@@ -86,15 +90,15 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
             if result_dict["e"][0]['type'] == l["sensor_type"]:
                 if result_dict["e"][0]['value'] < l["min"]:
                     self.emergencypublish(result_dict, 'min')
-                    
+
                 elif result_dict["e"][0]['value'] > l["max"]:
                     self.emergencypublish(result_dict, 'max')
-                    
+
                 elif result_dict["e"][0]['value'] > l["max_good"]:
                     self.emergencypublish(result_dict, 'max_good')
-                    
 
-    def emergencypublish (self, result_dict, warning ):
+
+    def emergencypublish(self, result_dict, warning):
         message = self.__message
         message['e'][0]['patient'] = result_dict["e"][0]['patient']
         message['e'][0]['value'] = result_dict["e"][0]['value']
@@ -102,19 +106,21 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         message['e'][0]['type'] = result_dict["e"][0]['type']
         message['e'][0]['unit'] = result_dict["e"][0]['unit']
         message['e'][0]['warning'] = warning
-        message['bn'] = self.baseTopic+"/emergency/"+result_dict["e"][0]['type'], json.dumps(message)
-        self.client.myPublish(self.baseTopic+"/emergency/"+result_dict["e"][0]['type'], json.dumps(message)) #TOPIC molinette/emergency/sensor_type
+        message['bn'] = self.baseTopic + "/emergency/" + result_dict["e"][0]['type']
+        self.client.myPublish(self.baseTopic + "/emergency/" + result_dict["e"][0]['type'],
+                              json.dumps(message))  # TOPIC molinette/emergency/sensor_type
         print("Published!\n" + json.dumps(message) + "\n")
 
-        
+
+
 
 
 
 if __name__ == '__main__':
-    config = json.load(open(sys.argv[1])) #manager sensor settings
+    config = json.load(open(sys.argv[1]))  # manager sensor settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
     Limits = "Limits.json"
-    coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"],Limits)
+    manager = ManageSensor("molinette/emergency", config["broker"], config["broker_port"], Limits)
 
     conf = {
         '/': {
@@ -122,14 +128,18 @@ if __name__ == '__main__':
             'tools.sessions.on': True,
         }
     }
-    cherrypy.tree.mount(coll, '/', conf)
+    cherrypy.tree.mount(manager, '/', conf)
     cherrypy.config.update(conf)
     cherrypy.config.update({"server.socket_host": config["ip"]})
     cherrypy.config.update({"server.socket_port": config["port"]})
     cherrypy.engine.start()
 
-    coll.run()
-    coll.client.unsubscribe()
-    result = coll.follow(coll.baseTopic + '/#')
+
+    manager.run()
+    manager.client.unsubscribe()
+    print(manager.baseTopic)
+    manager.follow('molinette/patients/#')   #manager.baseTopic + '/#'
     cherrypy.engine.block()
-    coll.end()
+    manager.end()
+
+
