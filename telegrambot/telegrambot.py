@@ -11,7 +11,7 @@ class EchoBot1:
    
     exposed = True
     
-    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, broker, port):
+    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings):
         
         self.tokenBot = token
         self.Home_catalog_settings = json.load(open(Home_catalog_settings))
@@ -26,7 +26,7 @@ class EchoBot1:
         self.rooms = []
         
         self.clientID = 'telegramsubscriber'
-        self.client = MyMQTT(self.clientID, broker, port, self)
+        self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'], self)
 
         def run(self):
             self.client.start()
@@ -40,6 +40,7 @@ class EchoBot1:
         def notify(self, topic, msg):
             payload = json.loads(msg)
             warning_dict = json.loads(payload)
+            
         
 
         #noi ora abbiamo lista di sensori, dobbiamo salvare i pazienti
@@ -196,12 +197,19 @@ class EchoBot1:
 if __name__ == "__main__":
     conf = json.load(open("settings.json"))
     conf_sensor = "Subscriber.json"
-    Limits = "Limits.json"
     token = conf["telegramToken"]
     Home_catalog_settings = "HomeCatalog_settings.json"
     infoPatients = "infoPatients.json"
-    bot = EchoBot1(token, Home_catalog_settings, conf_sensor, Limits, infoPatients)
+    bot = EchoBot1(token, Home_catalog_settings, conf_sensor, infoPatients)
+    bot.run()
+    bot.client.unsubscribe()
+    result = bot.follow(bot.baseTopic + '/emergency/#')
+    #bot.end
 
     print("Bot started ...")
     while True:
         time.sleep(3)
+    
+   
+
+   
