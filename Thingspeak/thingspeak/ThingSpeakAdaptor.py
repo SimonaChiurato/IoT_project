@@ -48,19 +48,19 @@ def rooms_sensors(Home_catalog_settings): #METHOD FOR RETRIVING INFORMATION ABOU
 
         #CONTROLLARE MANAGER HOME è il loro service_catalog!
         Home_get_string = "http://"+ Home_catalog_settings["ip_address"]+":"+str(Home_catalog_settings["ip_port"])+"/resource_catalogs"
-        rooms_all = json.loads(requests.get(Home_get_string).text)
+        rc_info = json.loads(requests.get(Home_get_string).text)
         rooms=[]
-        for entry in rooms_all:
-            request_string="http://"+entry["ip_address"]+":"+str(entry["ip_port"])+"/all"
-            devices=json.loads(requests.get(request_string).text)
-            sensors=[]
-            for dev in devices:
-                for type in dev["sensortype"]:
-                    sensors.append(type)
+        request_string = "http://" + rc_info["ip_address"] + ":" + str(rc_info["ip_port"]) + "/all"
+        patients = json.loads(requests.get(request_string).text)
+        for patient in patients.values():
+            sensors = []
+            for dev in patient:
+                    for type in dev['sensortype']:
+                        sensors.append(type)
 
-            rooms.append({"room_name":entry["patient"],
+            rooms.append({"room_name":dev["patient"],
                 "room_sensors":sensors,
-                "room_topic":entry["base_topic"]
+                "room_topic":dev["base_topic"]
                 })
 
         print(f"Available patient:")
