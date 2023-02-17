@@ -20,8 +20,8 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
             'bn': '',
             'e': [
                 {
-                    'type': self.sensortype,
-                    'unit': self.sensormeasure,
+                    'type': '',
+                    'unit': '',
                     'patient': '',
                     'value': '',
                     'time': '',
@@ -95,6 +95,8 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         message['e'][0]['patient'] = result_dict["e"][0]['patient']
         message['e'][0]['value'] = result_dict["e"][0]['value']
         message['e'][0]['time'] = result_dict["e"][0]['time']
+        message['e'][0]['type'] = result_dict["e"][0]['type']
+        message['e'][0]['unit'] = result_dict["e"][0]['unit']
         message['e'][0]['warning'] = warning
         self.client.myPublish(self.baseTopic+"/emergency/"+result_dict["e"][0]['type'], json.dumps(message)) #TOPIC molinette/emergency/sensor_type
         print("Published!\n" + json.dumps(message) + "\n")
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     config = json.load(open(sys.argv[1])) #manager sensor settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
     Limits = "Limits.json"
-    coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"])
+    coll = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"],Limits)
 
     conf = {
         '/': {

@@ -54,44 +54,39 @@ class EchoBot1:
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
 
 
+    def run(self):
+        self.client.start()
 
+    def end(self):
+      self.client.stop()
 
+    def follow(self, topic):
+      self.client.mySubscribe(topic)
 
-      def run(self):
-          self.client.start()
+    def notify(self, topic, msg):
+      payload = json.loads(msg)
+      warning_dict = json.loads(payload['e'][0])
 
-      def end(self):
-          self.client.stop()
+      chatID_doc= []
+      for p in self.infoPatients['patients'].values():
+          if p == warning_dict['patient']:
+              chat_ID = p["chatID"]
 
-      def follow(self, topic):
-          self.client.mySubscribe(topic)
+      for p in self.infoPatients['doctors'].values():
+          chatID_doc.append(p["chatID"])
 
-      def notify(self, topic, msg):
-          payload = json.loads(msg)
-          warning_dict = json.loads(payload)
-
-          chatID_doc= []
-
-          for p in self.infoPatients['patients'].values():
-              if p == warning_dict['patient']:
-                  chat_ID = p["chatID"]
-
-
-          for p in self.infoPatients['doctors'].values():
-              chatID_doc.append(p["chatID"])
-
-          if warning_dict['warning'] == 'min':
-              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-              for d in chatID_doc:
-                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-          if warning_dict['warning'] == 'max':
-              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-              for d in chatID_doc:
-                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-          if warning_dict['warning'] == 'max_good':
-              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
-              for d in chatID_doc:
-                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+      if warning_dict['warning'] == 'min':
+          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+          for d in chatID_doc:
+              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+      if warning_dict['warning'] == 'max':
+          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+          for d in chatID_doc:
+              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+      if warning_dict['warning'] == 'max_good':
+          self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+          for d in chatID_doc:
+              self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
 
 
     # fare il controllo e salvataggio id
@@ -172,7 +167,7 @@ class EchoBot1:
                     print(self.findPatient(chat_ID))
                     print(room['room_name'])
                     if self.findPatient(chat_ID) == room['room_name']:
-                        self.chosen_patient = room['room_name']
+                        chosen_patient = room['room_name']
                         buttons = []
                         buttons.append([InlineKeyboardButton(text='All sensor', callback_data='all')])
                         for sensor in room["room_sensors"]:
