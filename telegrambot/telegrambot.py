@@ -21,7 +21,7 @@ class EchoBot1:
 
         self.Home_catalog_settings = Home_catalog_settings
         self.Manager_sensor_settings = Manager_sensor_settings
-
+        self.chosen_patient = ""
 
         self.infoPatients = json.load(open(infoPatients))
         self.bot = telepot.Bot(self.tokenBot)
@@ -76,17 +76,18 @@ class EchoBot1:
 
     def notify(self, topic, msg):
         payload = json.loads(msg)
-        warning_dict = json.loads(payload)
+        warning_dict = json.loads((payload))
+        warning_dict = warning_dict["e"][0]
 
         chatID_doc= []
 
         for p in self.infoPatients['patients'].values():
-            if p == warning_dict['patient']:
+            if p["name"] == warning_dict['patient']:
                 chat_ID = p["chatID"]
 
-
         for p in self.infoPatients['doctors'].values():
-            chatID_doc.append(p["chatID"])
+            if p["chatID"] != -1:
+                chatID_doc.append(p["chatID"])
 
         if warning_dict['warning'] == 'min':
             self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
@@ -121,7 +122,7 @@ class EchoBot1:
     def findPatient(self, chat_ID):
         for p in self.infoPatients['patients'].values():
             if chat_ID == p["chatID"]:
-                return p["name"]
+                return p
         return ""
 
     def registration(self, chat_ID, message):
@@ -177,10 +178,9 @@ class EchoBot1:
             else:
                 print(self.rooms)
                 for room in self.rooms:
-                    print(self.findPatient(chat_ID))
-                    print(room['room_name'])
-                    if self.findPatient(chat_ID) == room['room_name']:
-                        chosen_patient = room['room_name']
+                    patient = self.findPatient(chat_ID)
+                    if  isinstance(patient,dict) and patient["name"] == room['room_name']:
+                        self.chosen_patient = room['room_name']
                         buttons = []
                         buttons.append([InlineKeyboardButton(text='All sensor', callback_data='all')])
                         for sensor in room["room_sensors"]:
@@ -201,6 +201,10 @@ class EchoBot1:
                 self.registration(chat_ID, message)
             elif message.startswith("/Patient"):
                 self.registration(chat_ID, message)
+            elif message == "/thingspeak":
+                patient = self.findPatient(chat_ID)
+                print(patient)
+                self.bot.sendMessage(chat_ID, text='You can check your analytics on https://thingspeak.com/channels' + patient["channel"])
 
             elif message == "/Check_All":
                 self.bot.sendMessage(chat_ID, text='Start monitoring your patients')
@@ -253,7 +257,7 @@ class EchoBot1:
             # GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
 
             self.bot.sendMessage(chat_ID, text=value.text)
-            self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
+            self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other /data or /thingspeak if you want to receive the analytics on your health')
 
         if message == 'all':
             value = requests.get(
@@ -262,7 +266,7 @@ class EchoBot1:
             # GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
 
             self.bot.sendMessage(chat_ID, text=value.text)
-            self.bot.sendMessage(chat_ID, text='Write new command if you want to ask other data')
+            self.bot.sendMessage(chat_ID, text='Click /data if you want to ask other data or /thingspeak if you want to receive the analytics on your health')
 
         if message == 'stop':
             print('ricevuto')
