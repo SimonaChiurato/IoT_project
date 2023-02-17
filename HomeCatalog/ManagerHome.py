@@ -15,9 +15,7 @@ class ManagerHome(object):
             #myfile.write(json.dumps(self.cat))
 
     def GET(self, *uri, **params):
-
         if len(uri) == 1:
-
             if uri[0] == 'resource_catalogs':           #restituisce tutti i res cat che ho
                 self.settings = json.load(open("HomeCatalog_settings.json"))
                 return json.dumps(self.settings["resource_catalogs"])
@@ -37,7 +35,7 @@ class ManagerHome(object):
             elif uri[0] == 'base_topic':
                 return json.dumps(self.settings["base_topic"])
         else:
-            error_string = "incorrect URI or PARAMETERS URI" + {len(uri)} + "PAR" + {len(params)}           #cambia stringa
+            error_string = "incorrect URI or PARAMETERS URI"+str(uri)+" lenght"+str(len(uri))
             raise cherrypy.HTTPError(400, error_string)
     '''
     def POST(self, *uri):

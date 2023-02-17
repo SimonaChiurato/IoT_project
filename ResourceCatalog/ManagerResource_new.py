@@ -26,6 +26,8 @@ class ManagerResource():
         self.settings = settings
         self.home_settings = home_settings
         poststring = "http://" + str(self.home_settings["ip_address"]) + ":" + str(self.home_settings["ip_port"])
+        #poststring = "http://home-catalog:8095"
+        print(poststring)
         requests.put(poststring, json.dumps(self.settings))
         print("POSTING INFORMATION TO THE SERVICE CATALOG\n")
         self.RM = ResourceCatalog(self.sensors)

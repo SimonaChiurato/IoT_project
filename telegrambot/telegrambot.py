@@ -22,16 +22,20 @@ class EchoBot1:
         rooms_all = json.loads(requests.get(Home_get_string).text)
         self.rooms = []
 
+        #noi ora abbiamo lista di sensori, dobbiamo salvare i pazienti
         for entry in rooms_all:
             request_string="http://"+entry["ip_address"]+":"+str(entry["ip_port"])+"/all"
             devices=json.loads(requests.get(request_string).text)
             sensors=[]
+
+
             for dev in devices:
                 if dev["ID_sensor"] == 'sensor_th_1':
                     for type in dev['sensortype']:
                         sensors.append(type)
                 else:
                     sensors.append(dev['sensortype'])
+            #Which sensors are in the room of patient X
             self.rooms.append({"room_name":entry["patient"],
                 "room_sensors":sensors
                 })
