@@ -5,15 +5,17 @@ import json
 import requests
 import time
 import sys
-
+from MyMQTT import *
         
 class EchoBot1:
-    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, Limits):
+    
+    exposed = True
+    
+    def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, broker, port):
         
         self.tokenBot = token
         self.Home_catalog_settings = json.load(open(Home_catalog_settings))
         self.Manager_sensor_settings = json.load(open(Manager_sensor_settings))
-        self.limits = json.load(open(Limits))
         self.bot = telepot.Bot(self.tokenBot)
         MessageLoop(self.bot, {'chat': self.on_chat_message,
                                'callback_query': self.on_callback_query}).run_as_thread()
@@ -21,6 +23,23 @@ class EchoBot1:
         Home_get_string = "http://"+self.Home_catalog_settings["ip_address"]+":"+str(self.Home_catalog_settings["ip_port"])+"/resource_catalogs"
         rooms_all = json.loads(requests.get(Home_get_string).text)
         self.rooms = []
+        
+        self.clientID = 'telegramsubscriber'
+        self.client = MyMQTT(self.clientID, broker, port, self)
+
+        def run(self):
+            self.client.start()
+
+        def end(self):
+            self.client.stop()
+
+        def follow(self, topic):
+            self.client.mySubscribe(topic)
+        
+        def notify(self, topic, msg):
+            payload = json.loads(msg)
+            warning_dict = json.loads(payload)
+        
 
         #noi ora abbiamo lista di sensori, dobbiamo salvare i pazienti
         for entry in rooms_all:
