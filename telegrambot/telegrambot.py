@@ -15,8 +15,11 @@ class EchoBot1:
     def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, infoPatients):
 
         self.tokenBot = token
+
         self.Home_catalog_settings = Home_catalog_settings
         self.Manager_sensor_settings = Manager_sensor_settings
+
+
         self.infoPatients = json.load(open(infoPatients))
         self.bot = telepot.Bot(self.tokenBot)
         MessageLoop(self.bot, {'chat': self.on_chat_message,
@@ -29,32 +32,33 @@ class EchoBot1:
 
         self.clientID = 'telegramsubscriber'
         self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'], self)
-        # noi ora abbiamo lista di sensori, dobbiamo salvare i pazienti
-        request_string = "http://" + rc_info["ip_address"] + ":" + str(rc_info["ip_port"]) + "/all"
-        patients = json.loads(requests.get(request_string).text)
 
-        for patient in patients.values():
-            sensors = []
-            for dev in patient:
-                if dev["ID_sensor"] == 'sensor_th_1':
-                    for type in dev['sensortype']:
-                        sensors.append(type)
-                else:
-                    sensors.append(dev['sensortype'])
-            # Which sensors are in the room of patient X
-            self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
-    def run(self):
-        self.client.start()
 
-    def end(self):
-        self.client.stop()
 
-    def follow(self, topic):
-        self.client.mySubscribe(topic)
+        def run(self):
+            self.client.start()
 
-    def notify(self, topic, msg):
-        payload = json.loads(msg)
-        warning_dict = json.loads(payload)
+        def end(self):
+            self.client.stop()
+
+        def follow(self, topic):
+            self.client.mySubscribe(topic)
+
+        def notify(self, topic, msg):
+            payload = json.loads(msg)
+            warning_dict = json.loads(payload)
+            
+            chatID_doc= []
+
+            for p in self.infoPatients['patients'].values():
+                if p == warning_dict['patient']:
+                    chat_ID = p["chatID"]
+
+               
+            for p in self.infoPatients['doctors'].values():
+                
+                chatID_doc.append
+                   
 
 
 
