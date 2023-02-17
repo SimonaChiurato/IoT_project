@@ -8,14 +8,21 @@ import sys
 from MyMQTT import *
 
 
+
+
 class EchoBot1:
+
     exposed = True
 
     def __init__(self, token, Home_catalog_settings, Manager_sensor_settings, infoPatients):
 
+
         self.tokenBot = token
+
         self.Home_catalog_settings = Home_catalog_settings
         self.Manager_sensor_settings = Manager_sensor_settings
+
+
         self.infoPatients = json.load(open(infoPatients))
         self.bot = telepot.Bot(self.tokenBot)
         MessageLoop(self.bot, {'chat': self.on_chat_message,
@@ -27,6 +34,7 @@ class EchoBot1:
         self.rooms = []
 
         self.clientID = 'telegramsubscriber'
+
         self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'],
                              self)
 
@@ -45,18 +53,46 @@ class EchoBot1:
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
 
-    def run(self):
-        self.client.start()
 
-    def end(self):
-        self.client.stop()
 
-    def follow(self, topic):
-        self.client.mySubscribe(topic)
 
-    def notify(self, topic, msg):
-        payload = json.loads(msg)
-        warning_dict = json.loads(payload)
+
+      def run(self):
+          self.client.start()
+
+      def end(self):
+          self.client.stop()
+
+      def follow(self, topic):
+          self.client.mySubscribe(topic)
+
+      def notify(self, topic, msg):
+          payload = json.loads(msg)
+          warning_dict = json.loads(payload)
+
+          chatID_doc= []
+
+          for p in self.infoPatients['patients'].values():
+              if p == warning_dict['patient']:
+                  chat_ID = p["chatID"]
+
+
+          for p in self.infoPatients['doctors'].values():
+              chatID_doc.append(p["chatID"])
+
+          if warning_dict['warning'] == 'min':
+              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+              for d in chatID_doc:
+                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too low : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+          if warning_dict['warning'] == 'max':
+              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+              for d in chatID_doc:
+                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is too high : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+          if warning_dict['warning'] == 'max_good':
+              self.bot.sendMessage(chat_ID,'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+              for d in chatID_doc:
+                  self.bot.sendMessage(d,'Patient: ' + str(warning_dict['patient']) + 'The' + str(warning_dict['type']) +'value is near the high limit : '+ str(warning_dict['value']) + str(warning_dict['unit']))
+
 
     # fare il controllo e salvataggio id
     def checkRegistration(self, chat_ID):
