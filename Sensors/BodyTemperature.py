@@ -137,10 +137,13 @@ if __name__ == "__main__":
         else:
             print('Failure. Try again!')
     """
-
+    vect = [35 , 35.2, 35.4, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.9, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 37, 37, 37, 36.5, 36.5 ]
     while 1:
-        Body_Temperature = 35
-        Body_Temperature = Body_Temperature + random.randint(-1,1) #SIMULATED SENSOR
+        for i in vect: 
+            Body_Temperature = i
+
+        #Body_Temperature = 35
+        #Body_Temperature = Body_Temperature + random.randint(-1,1) #SIMULATED SENSOR
         print(Body_Temperature)
         Sensor.publish(Body_Temperature, dict['patient'])
         time.sleep(10)
