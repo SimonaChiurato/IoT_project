@@ -49,6 +49,6 @@ if __name__ == '__main__':
     coll = OxigenControl(Home_info["base_topic"], config["broker"], config["broker_port"])
     coll.run()
     coll.client.unsubscribe()
-    result = coll.follow(coll.baseTopic + '/emergency/#')
+    result = coll.follow(coll.baseTopic + '/emergency/oxygen')
     cherrypy.engine.block()
     coll.end()
