@@ -1,1 +1,17 @@
-{"resource_catalogs": [{"broker": "test.mosquitto.org", "broker_port": 1883, "base_topic": "martino_conversano", "ip_address": "127.0.0.1", "ip_port": 8081, "patient": "Martino Conversano"}], "ip_address": "127.0.0.1", "ip_port": 8095, "broker_port": 1883, "broker": "test.mosquitto.org", "base_topic": "molinette"}
+{
+  "resource_catalogs": [
+    {
+      "broker": "test.mosquitto.org",
+      "broker_port": 1883,
+      "base_topic": "martino_conversano",
+      "ip_address": "127.0.0.1",
+      "ip_port": 8081,
+      "patient": "Martino Conversano"
+    }
+  ],
+  "ip_address": "127.0.0.1",
+  "ip_port": 8095,
+  "broker_port": 1883,
+  "broker": "test.mosquitto.org",
+  "base_topic": "molinette/patients"
+}
