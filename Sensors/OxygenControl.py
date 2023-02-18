@@ -9,7 +9,7 @@ import sys
 class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS AS A SERVER FOR PROVIDING INFORMATION TO THE APPLICATIONS
 
     def __init__(self, baseTopic, broker, port):
-        self.clientID = "emergency"
+        self.clientID = "oxigen_control"
         self.baseTopic = baseTopic
         self.value = 0
         self.client = MyMQTT(self.clientID, broker, port, self)
@@ -27,13 +27,13 @@ class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS A
         payload = json.loads(msg)
         result = payload
         result_dict = json.loads(result)
-        if result_dict['warning'] == 'min':
+        if result_dict["e"][0]['warning'] == 'min':
             if self.value < 5:
                 self.value = self.value + 1
                 print('Livello ossigeno erogato:' + str(self.value))
             else:
                 print('Ossigeno già erogato al livello massimo')
-        if resutl_dict['warning'] == 'max' or result_dict['warning'] == 'max_good':
+        if resutl_dict["e"][0]['warning'] == 'max' or result_dict["e"][0]['warning'] == 'max_good':
             if self.value > 0:
                 self.value = self.value - 1
                 print('Livello ossigeno erogato:' + str(self.value))
