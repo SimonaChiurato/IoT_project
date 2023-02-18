@@ -27,13 +27,13 @@ class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS A
         payload = json.loads(msg)
         result = payload
         result_dict = json.loads(result)
-        if warning_dict['warning'] == 'min':
+        if result_dict['warning'] == 'min':
             if self.value < 5:
                 self.value = self.value + 1
                 print('Livello ossigeno erogato:' + str(self.value))
             else:
                 print('Ossigeno già erogato al livello massimo')
-        if warning_dict['warning'] == 'max' or warning_dict['warning'] == 'max_good':
+        if resutl_dict['warning'] == 'max' or result_dict['warning'] == 'max_good':
             if self.value > 0:
                 self.value = self.value - 1
                 print('Livello ossigeno erogato:' + str(self.value))
