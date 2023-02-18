@@ -92,7 +92,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
             "ID_sensor": conf_sensor['ID_sensor'],
             "patient": rc["patient"],
             "measure": conf_sensor["measure"],
-            "oxigen_flow":
+            "oxygen_flow": 0,
             "communication": {
                 "basetopic": ServiceTopic + '/' + rc["base_topic"],
                 "complete_topic": CompleteTopic,
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     while 1:
         Oxygen = 80
-        Oxygen = Oxygen + random.randint(-1, 1) #SIMULATED SENSOR
+        Oxygen = Oxygen + random.randint(-2, 2) #SIMULATED SENSOR
         print(Oxygen, dict['patient'])
         Sensor.publish(Oxygen, dict['patient'])
         time.sleep(2)

@@ -28,5 +28,12 @@
         "max":79,
         "max_good":180,
         "measure":"bpm"
+    },
+    {
+        "sensor_type":"oxygen",
+        "min":79,
+        "max":81,
+        "max_good":100,
+        "measure":"%"
     }
 ]

@@ -1,1 +1,1 @@
-{"Simona Chiurato": [{"sensortype": "body_temperature", "ID_sensor": "body_temperature", "patient": "Simona Chiurato", "measure": "Celsius degrees", "communication": {"basetopic": "molinette/patients/simona_chiurato", "complete_topic": "molinette/patients/simona_chiurato/body_temperature/body_temperature", "broker": "test.mosquitto.org", "port": 1883}, "insert-timestamp": 1676653034.279869}]}
+{}
