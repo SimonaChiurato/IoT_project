@@ -20,13 +20,15 @@ class ManagerResource():
         # self.users=json.load(open(self.usersFile)) #for future usage
         self.saved_file = sensors
         with open(self.saved_file, "w") as myfile:
-            myfile.write("[]")
+           myfile.write("{}")
         self.sensors = json.load(open(self.saved_file))  # resource catalog
 
         self.settings = settings
         self.home_settings = home_settings
-        poststring = "http://" + str(self.home_settings["ip_address"]) + ":" + str(self.home_settings["ip_port"])
-        requests.put(poststring, json.dumps(self.settings))
+        putstring = "http://" + str(self.home_settings["ip_address"]) + ":" + str(self.home_settings["ip_port"])
+        #poststring = "http://home-catalog:8095"
+        print(putstring)
+        requests.put(putstring, json.dumps(self.settings))
         print("POSTING INFORMATION TO THE SERVICE CATALOG\n")
         self.RM = ResourceCatalog(self.sensors)
     def GET(self, *uri, **params): #copiare da 5.1 server
@@ -61,10 +63,10 @@ class ManagerResource():
             if (uri[0] == 'sensor'):
                 print("SENSOR INFORMATION RECEIVED (post)!\n")
                 print("body=", json_body, "\n")
-                if self.RM.sensorByID(json_body['ID_sensor']) != {}:
+                if self.RM.sensorByTopic(json_body) != {}:
                     raise cherrypy.HTTPError(400, 'The sensor is already present!')
-                # print(json_body)
                 self.sensors = self.RM.addSensor(json_body)
+                self.sensors = json.loads(self.sensors)
 
                 print("SENSOR INFORMATION REGISTERED (post)!\n")
                 with open(self.saved_file, "w") as f:
@@ -97,7 +99,15 @@ class ManagerResource():
                 else:
                     self.sensors = self.RM.addSensor(json_body)
                     print("SENSOR INFORMATION REGISTERED (put)!\n")
-
+            if uri[0] == 'oxygen':
+                print("MODIFIED OXYGEN FLOW")
+                resource = json.load(open("ResourceCatalog_info.json"))
+                for dev in resource:
+                    for i in range(len(resource[dev])):
+                        if resource[dev][i]['patient'] == json_body['patient']:
+                            resource[dev][i]['oxygen_flow'] = json_body['oxygen_flow']
+                            with open("ResourceCatalog_info.json", "w") as f:
+                                json.dump(resource, f)
             else:
                 raise cherrypy.HTTPError(400, 'invalid uri')
 

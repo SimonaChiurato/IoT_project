@@ -19,12 +19,17 @@ un catalog è una stanza, con una lista di sensori. Ogni catalog ha un paziente 
     # --------- DEVICES ---------
 
     def sensorByID(self, sensorID):
-        print("sensor_list")
-        print(self.sensors)
+        #print("sensor_list")
+        #print(self.sensors)
+        message =  []
+        found = 0
         for dev in self.sensors:
-
-            if dev['ID_sensor'] == sensorID:  # CAMBIARE 'sensor_id' in ID_sensor
-                return json.dumps(dev)
+            for i in range(len(self.sensors[dev])):
+                if  self.sensors[dev][i]['ID_sensor'] == sensorID:  # CAMBIARE 'sensor_id' in ID_sensor
+                    message.append(self.sensors[dev][i])
+                    found = 1
+        if found == 1:
+            return json.dumps(message)
         return {}
 
     def sensorByTopic(self, sensor):
