@@ -172,12 +172,12 @@ if __name__ == "__main__":
 
     while 1:
         for i in range(len(vect)):
-            Temperature = vect(i)
-            Humidity = vectt(i)
-            Temperature = Temperature + random.randint(-1,1) #SIMULATED SENSOR
+            Temperature = vect[i]
+            Humidity = vectt[i]
+            #Temperature = Temperature + random.randint(-1,1) #SIMULATED SENSOR
             print(Temperature)
             Sensor[0].publish(Temperature, dict['patient'])
-            Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
+            #Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
             print(Humidity )
             Sensor[1].publish(Humidity, dict['patient'])
             time.sleep(5)

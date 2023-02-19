@@ -20,6 +20,8 @@ class ThinkSpeak:
         self.field2_data = None  # humidity
         self.field3_data = None  # BodyTemperature
         self.field4_data = None  # HeartRate
+        self.field5_data = None  # Oxygen
+
 
     def start(self, topic):
         self.topic = topic
@@ -40,6 +42,8 @@ class ThinkSpeak:
             self.field3_data = d["e"][0]["value"]
         elif d["e"][0]["type"] == "heart_rate":
             self.field4_data = d["e"][0]["value"]
+        elif d["e"][0]["type"] == "oxygen":
+            self.field5_data = d["e"][0]["value"]
 
 
 def rooms_sensors(Home_catalog_settings,
@@ -95,7 +99,8 @@ if __name__ == "__main__":
             "field1": tp.field1_data,
             "field2": tp.field2_data,
             "field3": tp.field3_data,
-            "field4": tp.field4_data
+            "field4": tp.field4_data,
+            "field5": tp.field5_data
 
         })
 
@@ -105,6 +110,8 @@ if __name__ == "__main__":
         print("Humidity", tp.field2_data)
         print("Body_Temperature", tp.field3_data)
         print("Heart_Rate", tp.field4_data)
+        print("Oxygen", tp.field5_data)
+
         time.sleep(20)
         count += 1
         t += 1

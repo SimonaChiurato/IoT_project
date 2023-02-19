@@ -89,8 +89,6 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         result_dict = json.loads(result)
 
         flag = 0
-        print("result")
-        print(result_dict)
         for entry in self.register:
             if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0][
                 'patient']:
