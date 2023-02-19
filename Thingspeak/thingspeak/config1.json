@@ -1,1 +1,8 @@
-{"channel": 2024889, "key": "ULGTF3A6OVGGGCHB", "broker": "test.mosquitto.org", "port1": 1883, "url": "https://api.thingspeak.com/update.json"}
+{
+  "channel": 2024889,
+  "key": "ULGTF3A6OVGGGCHB",
+  "broker": "test.mosquitto.org",
+  "port1": 1883,
+  "url": "https://api.thingspeak.com/update.json",
+  "name": "Martino Conversano"
+}
