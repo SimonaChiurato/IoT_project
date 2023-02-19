@@ -143,7 +143,7 @@ if __name__ == "__main__":
         Body_Temperature = Body_Temperature + random.randint(-1,1) #SIMULATED SENSOR
         print(Body_Temperature)
         Sensor.publish(Body_Temperature, dict['patient'])
-        time.sleep(10)
+        time.sleep(2)
         '''
         dict2={'Patient':dict['patient'], 'Temperature':Body_Temperature}
         poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])

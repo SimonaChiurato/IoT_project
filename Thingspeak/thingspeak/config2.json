@@ -1,1 +1,8 @@
-{"channel": 2024930, "key": "14MIJFM4MVKXFIHZ", "broker": "test.mosquitto.org", "port1": 1883, "url": "https://api.thingspeak.com/update.json"}
+{
+  "channel": 2024930,
+  "key": "14MIJFM4MVKXFIHZ",
+  "broker": "test.mosquitto.org",
+  "port1": 1883,
+  "url": "https://api.thingspeak.com/update.json",
+  "name": "Simona Chiurato"
+}
