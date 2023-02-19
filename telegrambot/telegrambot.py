@@ -20,17 +20,24 @@ class EchoBot1:
         self.chosen_patient = ""
 
         self.infoPatients = json.load(open(infoPatients))
-        self.bot = telepot.Bot(self.tokenBot)
-        MessageLoop(self.bot, {'chat': self.on_chat_message,
-                               'callback_query': self.on_callback_query}).run_as_thread()
 
+        self.bot = telepot.Bot(self.tokenBot)
+
+        '''
+        def handle(msg):
+            print(msg)
+            message_type = telepot.glance(msg)
+            if message_type[0] == 'text':
+                self.on_chat_message(msg)
+            elif message_type[0] == 'callback_query':
+                self.on_callback_query(msg)
+        '''
         Home_get_string = "http://" + self.Home_catalog_settings["ip_address"] + ":" + str(
             self.Home_catalog_settings["ip_port"]) + "/resource_catalogs"
         rc_info = json.loads(requests.get(Home_get_string).text)
+
         self.rooms = []
-
         self.clientID = 'telegramsubscriber'
-
         self.client = MyMQTT(self.clientID, Manager_sensor_settings['broker'], Manager_sensor_settings['broker_port'],
                              self)
 
@@ -48,6 +55,8 @@ class EchoBot1:
                     sensors.append(dev['sensortype'])
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
+        # self.bot.message_loop(handle, run_forever=True)
+        MessageLoop(self.bot, {'chat': self.on_chat_message, 'callback_query': self.on_callback_query}).run_forever()
 
     def run(self):
         self.client.start()
@@ -202,8 +211,9 @@ class EchoBot1:
                 doc = self.findDoctor(chat_ID)
                 if isinstance(doc, dict):
                     self.bot.sendMessage(chat_ID,
-                                         text='Welcome back Dott. '+doc['name']+'! Click /data to get a view of the current situation or '
-                                              '/thingspeak to see analysis of the last period',
+                                         text='Welcome back Dott. ' + doc[
+                                             'name'] + '! Click /data to get a view of the current situation or '
+                                                       '/thingspeak to see analysis of the last period',
                                          )
             else:
                 patient = self.findPatient(chat_ID)
@@ -253,6 +263,9 @@ class EchoBot1:
                                      text='You can check your analytics on https://thingspeak.com/channels/' + str(
                                          patient[
                                              "channel"]))
+                self.bot.sendMessage(chat_ID,
+                                     text='Click /data if you want to ask other data or /thingspeak if you want to receive the analytics of the last period')
+
 
         elif message == "/start":
             self.bot.sendMessage(chat_ID,
@@ -268,44 +281,6 @@ class EchoBot1:
             self.registration(chat_ID, message)
         else:
             self.bot.sendMessage(chat_ID, text="Command not supported")
-            '''
-            elif message == "/Check_All":
-                self.bot.sendMessage(chat_ID, text='Start monitoring your patients')
-                self.stop = False
-                while not self.stop:
-
-                    for room in self.rooms:
-                        for dev in room["room_sensors"]:
-                            string = requests.get("http://" + str(self.Manager_sensor_settings['ip']) + ':' + str(
-                                self.Manager_sensor_settings['port']) +
-                                                  "/?room_name=" + room[
-                                                      'room_name'] + "&sensor_type=" + dev + "&check=value").text
-                            # GET REQUEST TO THE SENSOR SUBSCRIBER IN ORDER TO RECEIVE SENSOR DATA
-                            value = int(string.split()[1])
-                            for l in self.limits:
-                                if dev == l["sensor_type"]:
-                                    if value < l["min"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is low for patient: " + room[
-                                                                 "room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-                                    elif value > l["max"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is very high for patient: " +
-                                                                  room["room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-                                    elif value > l["max_good"]:
-                                        self.bot.sendMessage(chat_ID,
-                                                             text="WARNING! " + dev + " is  high for patient: " + room[
-                                                                 "room_name"])
-                                        self.bot.sendMessage(chat_ID, text=string)
-
-                    button = InlineKeyboardButton(text='Stop', callback_data='stop')
-                    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-                    self.bot.sendMessage(chat_ID, text='Press to stop monitoring your patients', reply_markup=keyboard)
-                    time.sleep(10)
-                self.bot.sendMessage(chat_ID, text='Stop monitoring')
-            '''
 
     def on_callback_query(self, msg):
         query_ID, chat_ID, query_data = telepot.glance(msg, flavor='callback_query')
@@ -376,7 +351,7 @@ if __name__ == "__main__":
     Home_catalog_settings = json.load(open("HomeCatalog_settings.json"))
     infoPatients = "infoPatients.json"
     bot = EchoBot1(token, Home_catalog_settings, Manager_sensor_settings, infoPatients)
-
+    print("ciao")
     bot.run()
     bot.client.unsubscribe()
     topic = Home_catalog_settings["base_topic"].split("/")
