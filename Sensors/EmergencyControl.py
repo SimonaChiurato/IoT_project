@@ -120,14 +120,14 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         message['e'][0]['type'] = result_dict["e"][0]['type']
         message['e'][0]['unit'] = result_dict["e"][0]['unit']
         message['e'][0]['warning'] = warning
-        message['bn'] = self.baseTopic + '/' + result_dict["e"][0]['type']
-        self.client.myPublish(self.baseTopic + '/' + result_dict["e"][0]['type'],
+        message['bn'] = self.baseTopic + '/emergency/' + result_dict["e"][0]['type']
+        self.client.myPublish(self.baseTopic + '/emergency/' + result_dict["e"][0]['type'],
                               json.dumps(message))  # TOPIC molinette/emergency/sensor_type
         print("Published!\n" + json.dumps(message) + "\n")
 
 
 if __name__ == '__main__':
-    config = json.load(open(sys.argv[1]))  # manager sensor settings
+    config = json.load(open(sys.argv[1]))  #manager sensor settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
     Limits = "Limits.json"
     manager = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"], Limits)

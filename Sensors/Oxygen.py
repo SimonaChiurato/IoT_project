@@ -131,5 +131,5 @@ if __name__ == "__main__":
         Oxygen = Oxygen + random.randint(-2, 2) #SIMULATED SENSOR
         print(Oxygen, dict['patient'])
         Sensor.publish(Oxygen, dict['patient'])
-        time.sleep(2)
+        time.sleep(5)
 

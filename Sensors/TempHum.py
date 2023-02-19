@@ -177,5 +177,5 @@ if __name__ == "__main__":
         Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
         print(Humidity )
         Sensor[1].publish(Humidity, dict['patient'])
-        time.sleep(2)
+        time.sleep(5)
 
