@@ -43,21 +43,21 @@ class HomeCatalog:
             print("Resource catalog already existing")
     '''
     def updateResCat(self, message):
-        already_existing = False
         j = 0
-        for entry in self.cat["resource_catalogs"]:
-            if entry != "patients" and self.cat["resource_catalogs"][entry] != message[entry]:
-                self.cat["resource_catalogs"][entry] = message[entry]
-            j += 1
-        i = 0
-        for entry in self.cat["resource_catalogs"]["patients"]:
-            if entry["base_topic"] == message["patients"][i]["base_topic"]:
-                already_existing = True
-                entry["patient"] = message["patients"][i]["patient"]
-                i += 1
-                print("Resource catalog already existing")
+        if self.cat["resource_catalogs"] != {}:
+            for entry in self.cat["resource_catalogs"]:
+                if entry != "patients" and self.cat["resource_catalogs"][entry] != message[entry]:
+                    self.cat["resource_catalogs"][entry] = message[entry]
+                j += 1
+            i = 0
+            for entry in self.cat["resource_catalogs"]["patients"]:
+                if entry["base_topic"] == message["patients"][i]["base_topic"]:
+                    already_existing = True
+                    entry["patient"] = message["patients"][i]["patient"]
+                    i += 1
+                    print("Resource catalog already existing")
 
-        if not already_existing:
+        else:
             self.cat["resource_catalogs"] = message
             with open(self.settings, "w") as f:
                 json.dump(self.cat, f, indent=4)
