@@ -43,25 +43,25 @@ class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS A
                 if result_dict["e"][0]['warning'] == 'min':
                     if room['oxygen_flow'] < 5:
                         room['oxygen_flow'] = room['oxygen_flow'] + 1
-                        print('Livello ossigeno erogato:' + str(room['oxygen_flow']) + ' per il paziente ' + room['room_name'])
+                        print('Level of oxigen flow delivered: ' + str(room['oxygen_flow']) + ' to the patient ' + room['room_name'])
                         message = {
                             'patient': room['room_name'],
                             'oxygen_flow': room['oxygen_flow']
                         }
                         requests.put(self.put, json.dumps(message))
                     else:
-                        print('Ossigeno già erogato al livello massimo per il paziente ' + room['room_name'])
+                        print('Oxygen flow already delivered at maximum level to the patient ' + room['room_name'])
                 if result_dict["e"][0]['warning'] == 'max' or result_dict["e"][0]['warning'] == 'max_good':
                     if room['oxygen_flow'] > 0:
                         room['oxygen_flow'] = room['oxygen_flow'] - 1
-                        print('Livello ossigeno erogato:' + str(room['oxygen_flow']) + ' per il paziente ' + room['room_name'])
+                        print('Level of oxigen flow delivered: ' + str(room['oxygen_flow']) + ' to the patient ' + room['room_name'])
                         message = {
                             'patient': room['room_name'],
                             'oxygen_flow': room['oxygen_flow']
                         }
                         requests.put(self.put, json.dumps(message))
                     else:
-                        print('Ossigeno già erogato al livello minimo per il paziente ' + room['room_name'])
+                        print('Oxygen flow already delivered at minimum level to the patient ' + room['room_name'])
 
 
 

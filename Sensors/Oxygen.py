@@ -126,10 +126,12 @@ if __name__ == "__main__":
     Sensor= SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict['sensortype'], dict['topic'])
     Sensor.start()
 
+    vect = [98, 97, 97, 97, 97, 96, 95, 95, 95, 96, 97, 98, 98, 98, 99, 99, 98, 97, 96, 96, 95, 94, 93, 93, 93, 92, 92, 91, 91, 92, 92, 92, 93, 94, 94, 95, 95, 95, 96, 96, 95, 96, 96, 96, 97]
     while 1:
-        Oxygen = 80
-        Oxygen = Oxygen + random.randint(-2, 2) #SIMULATED SENSOR
-        print(Oxygen, dict['patient'])
-        Sensor.publish(Oxygen, dict['patient'])
-        time.sleep(5)
+        for i in vect:
+            Oxygen = i
+            #Oxygen = Oxygen + random.randint(-2, 2) #SIMULATED SENSOR
+            print(Oxygen, dict['patient'])
+            Sensor.publish(Oxygen, dict['patient'])
+            time.sleep(5)
 

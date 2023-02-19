@@ -125,10 +125,13 @@ if __name__ == "__main__":
     Sensor= SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict['sensortype'], dict['topic'])
     Sensor.start()
 
+    vect = [40, 45, 50, 52, 55, 60, 60, 63, 58, 61, 71, 85, 98, 110, 125, 125, 122, 115, 100, 98, 95, 94, 92, 90, 91, 91, 92, 85, 80, 80, 82, 82, 79, 80, 75, 72, 70, 66, 67, 68, 69, 70, 71, 72, 70]
     while 1:
-        HeartRate = 80
-        HeartRate = HeartRate + random.randint(-1, 1) #SIMULATED SENSOR
-        print(HeartRate, dict['patient'])
-        Sensor.publish(HeartRate, dict['patient'])
-        time.sleep(5)
+        for i in vect:
+
+            HeartRate = i
+            #HeartRate = HeartRate + random.randint(-1, 1) #SIMULATED SENSOR
+            print(HeartRate, dict['patient'])
+            Sensor.publish(HeartRate, dict['patient'])
+            time.sleep(5)
 

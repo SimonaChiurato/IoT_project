@@ -16,24 +16,24 @@
 
     {
         "sensor_type":"body_temperature",
-        "min":32,
-        "max":34,
-        "max_good":39,
+        "min":33,
+        "max":39,
+        "max_good":37,
         "measure":"Celsius degrees"
     },
 
     {
         "sensor_type":"heart_rate",
         "min":40,
-        "max":79,
-        "max_good":180,
+        "max":150,
+        "max_good":120,
         "measure":"bpm"
     },
     {
         "sensor_type":"oxygen",
-        "min":79,
-        "max":81,
-        "max_good":100,
+        "min":94,
+        "max":99,
+        "max_good":98,
         "measure":"%"
     }
 ]
