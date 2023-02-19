@@ -3,7 +3,7 @@
         "sensor_type":"temperature",
         "min":19.5,
         "max":22,
-        "max_good":21,
+        "max_good":21.1,
         "measure":"Celsius degrees"
     },
     {
