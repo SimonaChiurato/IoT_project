@@ -19,7 +19,8 @@ class MyMQTT:
 
 
 	def myOnConnect (self, paho_mqtt, userdata, flags, rc):
-		print ("Connected to %s with result code: %d" % (self.broker, rc))
+		#print ("Connected to %s with result code: %d" % (self.broker, rc))
+		print("")
 
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
 		# A new message is received

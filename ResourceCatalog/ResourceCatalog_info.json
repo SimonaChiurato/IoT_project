@@ -1,1 +1,3 @@
+
 {"Simona Chiurato": [{"sensortype": ["temperature", "humidity"], "ID_sensor": "sensor_th_1", "patient": "Simona Chiurato", "measure": ["Celsius degrees", "%"], "communication": {"basetopic": "molinette/patients/simona_chiurato", "complete_topic": ["molinette/patients/simona_chiurato/temperature/sensor_th_1", "molinette/patients/simona_chiurato/humidity/sensor_th_1"], "broker": "test.mosquitto.org", "port": 1883}, "insert-timestamp": 1676820073.1639342}]}
+

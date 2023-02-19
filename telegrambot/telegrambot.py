@@ -285,7 +285,7 @@ class EchoBot1:
     def on_callback_query(self, msg):
         query_ID, chat_ID, query_data = telepot.glance(msg, flavor='callback_query')
         message = query_data
-        print(message)
+        #print(message)
         if message == 'temperature' or message == 'humidity' or message == 'body_temperature' or message == 'heart_rate':
             value = requests.get(
                 "http://" + str(self.Manager_sensor_settings['ip']) + ':' + str(self.Manager_sensor_settings['port']) +
