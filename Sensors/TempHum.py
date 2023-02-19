@@ -167,15 +167,18 @@ if __name__ == "__main__":
         else:
             print('Failure. Try again!')
     """
+    vect = [20.2, 20.1, 20.0, 20.0, 20.1, 20.1, 20.1, 20.2, 20.2, 20.3, 20.3, 20.3, 20.3, 20.4, 20.5, 20.6, 20.6, 20.7, 20.8, 20.9, 21.0, 21.2, 21.2, 21.3, 21.5, 21.6, 21.9, 22.1, 21.8, 21.5, 21.3, 21.0, 20.8, 20.5, 20.2, 20.0, 19.8, 19.5, 19.3, 19.2, 19.0, 19.0, 18.9, 19.0, 19.2]
+    vectt = [50, 51, 50, 52, 52, 53, 54, 53, 52, 53, 54, 55, 56, 55, 55, 55, 54, 54, 55, 56, 56, 56, 57, 58, 58, 58, 58, 59, 59, 59, 59, 60, 60, 61, 61, 60, 59, 59, 58, 58, 57, 56, 55, 55, 55]
 
     while 1:
-        Temperature = 20
-        Humidity = 50
-        Temperature = Temperature + random.randint(-1,1) #SIMULATED SENSOR
-        print(Temperature)
-        Sensor[0].publish(Temperature, dict['patient'])
-        Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
-        print(Humidity )
-        Sensor[1].publish(Humidity, dict['patient'])
-        time.sleep(5)
+        for i in range(len(vect)):
+            Temperature = vect(i)
+            Humidity = vectt(i)
+            Temperature = Temperature + random.randint(-1,1) #SIMULATED SENSOR
+            print(Temperature)
+            Sensor[0].publish(Temperature, dict['patient'])
+            Humidity = Humidity + random.randint(-20,20) #SIMULATED SENSOR
+            print(Humidity )
+            Sensor[1].publish(Humidity, dict['patient'])
+            time.sleep(5)
 
