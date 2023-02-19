@@ -14,7 +14,6 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         self.clientID = "emergency"
         topic = baseTopic.split("/")
         self.baseTopic = topic[0]
-        print(self.baseTopic)
         self.client = MyMQTT(self.clientID, broker, port, self)
         self.register = []
         self.limits = json.load(open(Limits))
@@ -50,7 +49,6 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
         if len(parameters) >= 1:
             print("TELEGRAM GET REQUEST RECEIVED!\n")
             print("\n\n")
-            print(parameters)
             if parameters["check"] == "value":
                 for entry in self.register:
                     if entry['e'][0]["patient"] == parameters["room_name"] and entry["e"][0]["type"] == parameters["sensor_type"]:  # modifica fatta per il telegram warning
