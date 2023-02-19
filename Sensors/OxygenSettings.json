@@ -1,7 +1,7 @@
 {
     "ID_sensor":"sensor_oxygen",
     "sensor_type":["oxygen"],
-    "measure":"bpm",
+    "measure":"%",
     "server_ip":"127.0.0.1",
     "server_port":8086
 }
