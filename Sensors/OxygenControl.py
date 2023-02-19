@@ -10,7 +10,8 @@ class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS A
 
     def __init__(self, baseTopic, Home_catalog_settings, broker, port):
         self.clientID = "oxigen_control"
-        self.baseTopic = baseTopic
+        topic = baseTopic.split("/")
+        self.baseTopic = topic[0]
         self.Home_catalog_settings = Home_catalog_settings
         self.client = MyMQTT(self.clientID, broker, port, self)
         Home_get_string = "http://" + self.Home_catalog_settings["ip_address"] + ":" + str(
@@ -71,6 +72,6 @@ if __name__ == '__main__':
     coll = OxigenControl(Home_info["base_topic"], Home_info, config["broker"], config["broker_port"])
     coll.run()
     coll.client.unsubscribe()
-    result = coll.follow(coll.baseTopic + '/emergency/oxygen')
+    coll.follow(coll.baseTopic + '/emergency/oxygen')
     cherrypy.engine.block()
     coll.end()

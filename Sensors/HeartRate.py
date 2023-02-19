@@ -130,9 +130,5 @@ if __name__ == "__main__":
         HeartRate = HeartRate + random.randint(-1, 1) #SIMULATED SENSOR
         print(HeartRate, dict['patient'])
         Sensor.publish(HeartRate, dict['patient'])
-        time.sleep(2)
+        time.sleep(5)
 
-        #serve per telegram??
-        #dict2={'Patient':dict['patient'], 'HeartRate': HeartRate}
-        #poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-        #requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER

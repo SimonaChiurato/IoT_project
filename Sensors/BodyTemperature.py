@@ -137,18 +137,10 @@ if __name__ == "__main__":
         else:
             print('Failure. Try again!')
     """
-    vect = [35 , 35.2, 35.4, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.9, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 37, 37, 37, 36.5, 36.5 ]
+    vect = [35, 35.2, 35.4, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.9, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 37, 37, 37, 36.5, 36.5]
     while 1:
         for i in vect: 
             Body_Temperature = i
-
-        #Body_Temperature = 35
-        #Body_Temperature = Body_Temperature + random.randint(-1,1) #SIMULATED SENSOR
-        print(Body_Temperature)
-        Sensor.publish(Body_Temperature, dict['patient'])
-        time.sleep(2)
-        '''
-        dict2={'Patient':dict['patient'], 'Temperature':Body_Temperature}
-        poststring = 'http://' + sensor_settings["server_ip"] + ':' + str(sensor_settings["server_port"])
-        requests.post(poststring, json.dumps(dict2))  #POSTING INFORMATION TO TEMPERATURE CONTROL SERVER
-        '''
+            print(Body_Temperature)
+            Sensor.publish(Body_Temperature, dict['patient'])
+            time.sleep(5)
