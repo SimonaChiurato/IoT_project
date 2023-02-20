@@ -53,7 +53,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
         'ip_port']) + '/patients'
     ListOfPatients = requests.get(request)
-    print("Connection with home catalog: OK\n") #modifica
+    print("Connection with home catalog: OK\n")
     names = ListOfPatients.json()
     check_name = False
     while check_name == False:
@@ -100,7 +100,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
             }
         }
         requests.post(post, json.dumps(body_dic))
-        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
+        print("The patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"][0],
@@ -124,20 +124,7 @@ if __name__ == "__main__":
     Sensor = (SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict["sensortype"], dict['topic']))
     Sensor.start()
 
-    """ use this with HW
-        while 1:
-            
-        pin=config["pin"]
-        Humidity, Temperature = Adafruit_DHT.read_retry(11, pin)
-        
-        if Humidity is not None and temperature is not None:
-            print('\nTemp={0:0.1f}*C  Humidity={1:0.1f}%'.format(Temperature, Humidity))
-            Sensor[0].publish('{0:0.1f}'.format(Temperature), dict['patient'])
-            Sensor[1].publish('{0:0.1f}'.format(Humidity), dict['patient'])
-            time.sleep(3)
-        else:
-            print('Failure. Try again!')
-    """
+
     vect = [35, 35.2, 36.7, 35.5, 38.5,39.8, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5,
             36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.9, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2,
             37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5 , 38.5, 38.5, 38.5, 38.5, 37, 37, 37,

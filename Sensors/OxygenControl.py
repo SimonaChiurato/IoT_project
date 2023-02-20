@@ -6,8 +6,7 @@ from datetime import datetime
 import sys
 import requests
 
-class OxigenControl():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS AS A SERVER FOR PROVIDING INFORMATION TO THE APPLICATIONS
-
+class OxigenControl():
     def __init__(self, baseTopic, Home_catalog_settings, broker, port):
         self.clientID = "oxigen_control"
         topic = baseTopic.split("/")

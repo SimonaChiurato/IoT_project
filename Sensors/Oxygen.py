@@ -16,7 +16,7 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {  #topic --> bn   message--> e !!!!!!
+        self.__message = {
             'bn': self.topic,
             'e': [
                 {
@@ -50,9 +50,9 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
 
     with open(home_settings, "r") as file2:
         conf_home = json.loads(file2.read())
-    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[ 'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[ 'ip_port']) + '/patients'
     ListOfPatients = requests.get(request)
-    print("Connection with home catalog: OK\n") #modifica
+    print("Connection with home catalog: OK\n")
     names = ListOfPatients.json()
     check_name = False
     while check_name == False:
@@ -102,7 +102,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         }
 
         requests.post(post, json.dumps(body_dic))
-        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
+        print("The patient has been registered on the resource catalog\n")
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"][0],
