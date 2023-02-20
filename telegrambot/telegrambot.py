@@ -23,15 +23,7 @@ class EchoBot1:
 
         self.bot = telepot.Bot(self.tokenBot)
 
-        '''
-        def handle(msg):
-            print(msg)
-            message_type = telepot.glance(msg)
-            if message_type[0] == 'text':
-                self.on_chat_message(msg)
-            elif message_type[0] == 'callback_query':
-                self.on_callback_query(msg)
-        '''
+
         Home_get_string = "http://" + self.Home_catalog_settings["ip_address"] + ":" + str(
             self.Home_catalog_settings["ip_port"]) + "/resource_catalogs"
         rc_info = json.loads(requests.get(Home_get_string).text)
@@ -43,9 +35,7 @@ class EchoBot1:
 
         request_string = "http://" + rc_info["ip_address"] + ":" + str(rc_info["ip_port"]) + "/all"
         patients = json.loads(requests.get(request_string).text)
-        # print(patients)
         for patient in patients.values():
-            # print(patient)
             sensors = []
             for dev in patient:
                 if dev["ID_sensor"] == 'sensor_th_1':
@@ -55,7 +45,6 @@ class EchoBot1:
                     sensors.append(dev['sensortype'])
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
-        # self.bot.message_loop(handle, run_forever=True)
         MessageLoop(self.bot, {'chat': self.on_chat_message, 'callback_query': self.on_callback_query}).run_as_thread()
 
     def run(self):
@@ -134,7 +123,6 @@ class EchoBot1:
                     warning_dict['type'])) + ' value is near the high limit: ' + str(warning_dict['value']) + " " + str(
                     warning_dict['unit']))
 
-    # fare il controllo e salvataggio id
     def checkRegistration(self, chat_ID):
         for p in self.infoPatients['patients'].values():
             if chat_ID == p["chatID"]:
@@ -271,10 +259,6 @@ class EchoBot1:
         elif message == "/start":
             self.bot.sendMessage(chat_ID,
                                  text=" Welcome! If you are a doctor use the command '/Doctor + your name + your surname + hospital password'.\n If you are a patient use the command '/Patient + your name'.")
-            '''keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text='Doctor', callback_data='doctor'),
-                     InlineKeyboardButton(text='Patient', callback_data='patient')]])
-                self.bot.sendMessage(chat_ID, text=" Welcome! Are you the doctor or the patient?", reply_markup=keyboard)'''
 
         elif message.startswith("/Doctor"):
             self.registration(chat_ID, message)
@@ -286,7 +270,6 @@ class EchoBot1:
     def on_callback_query(self, msg):
         query_ID, chat_ID, query_data = telepot.glance(msg, flavor='callback_query')
         message = query_data
-        #print(message)
         if message == 'temperature' or message == 'humidity' or message == 'body_temperature' or message == 'heart_rate':
             value = requests.get(
                 "http://" + str(self.Manager_sensor_settings['ip']) + ':' + str(self.Manager_sensor_settings['port']) +
@@ -306,10 +289,6 @@ class EchoBot1:
             self.bot.sendMessage(chat_ID, text=value.text)
             self.bot.sendMessage(chat_ID,
                                  text='Click /data if you want to ask other data or /thingspeak if you want to receive the analytics of the last period')
-
-        if message == 'stop':
-            # print('ricevuto')
-            self.stop = True
 
         if message.startswith('Patient'):
             params = message.split()[1:]

@@ -101,7 +101,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         }
 
         requests.post(post, json.dumps(body_dic))
-        print("the patient has been registered on the resource catalog\n")
+        print("The patient has been registered on the resource catalog\n")
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"][0],

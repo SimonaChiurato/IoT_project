@@ -16,7 +16,7 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {  #topic --> bn   message--> e !!!!!!
+        self.__message = {
             'bn': self.topic,
             'e': [
                 {
@@ -51,9 +51,9 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     with open(home_settings, "r") as file2:
         conf_home = json.loads(file2.read())
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
-        'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+        'ip_port']) + '/patients'
     ListOfPatients = requests.get(request)
-    print("Connection with home catalog: OK\n") #modifica
+    print("Connection with home catalog: OK\n")
     names = ListOfPatients.json()
     check_name = False
     while check_name == False:
@@ -75,7 +75,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
     print(rc)
-    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
+    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")
 
     if rc == 0:
         print('No record for this patient')
@@ -102,30 +102,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
             }
         }
         requests.post(post, json.dumps(body_dic))
-        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
-
-
-        '''
-        for i in conf_sensor["sensor_type"]:
-            print(i)
-            CompleteTopic.append(ServiceTopic + '/' +rc["base_topic"] + '/' + i + '/' + conf_sensor["ID_sensor"])
-            body_dic = {
-                "sensortype": conf_sensor['sensor_type'],
-                "ID_sensor": conf_sensor['ID_sensor'],
-                "patient": rc["patient"],
-                "measure": conf_sensor["measure"][model],
-                "communication": {
-                    "basetopic": ServiceTopic + '/' + rc["base_topic"],
-                    "complete_topic": CompleteTopic,
-                    "broker": rc["broker"],
-                    "port": rc["broker_port"]
-                }
-            }
-            BodyMessage.append(body_dic)
-            requests.post(post, json.dumps(BodyMessage[model]))
-            print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
-            model = model + 1
-        '''
+        print("The patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"],
@@ -153,20 +130,7 @@ if __name__ == "__main__":
         Sensor.append(SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'][value_sensortype], i, dict['topic'][value_sensortype]))
         Sensor[value_sensortype].start()
         value_sensortype = value_sensortype + 1
-    """
-        while 1:
-            
-        pin=config["pin"]
-        Humidity, Temperature = Adafruit_DHT.read_retry(11, pin)
-        
-        if Humidity is not None and temperature is not None:
-            print('\nTemp={0:0.1f}*C  Humidity={1:0.1f}%'.format(Temperature, Humidity))
-            Sensor[0].publish('{0:0.1f}'.format(Temperature), dict['patient'])
-            Sensor[1].publish('{0:0.1f}'.format(Humidity), dict['patient'])
-            time.sleep(3)
-        else:
-            print('Failure. Try again!')
-    """
+
     vect = [20.2, 20.1, 20.0, 20.0, 20.1, 20.1, 20.1, 20.2, 20.2, 20.3, 20.3, 20.3, 20.3, 20.4, 20.5, 20.6, 20.6, 20.7, 20.8, 20.9, 21.0, 21.2, 21.2, 21.3, 21.5, 21.6, 21.9, 22.1, 21.8, 21.5, 21.3, 21.0, 20.8, 20.5, 20.2, 20.0, 19.8, 19.5, 19.3, 19.2, 19.0, 19.0, 18.9, 19.0, 19.2]
     vectt = [50, 51, 50, 52, 52, 53, 54, 53, 52, 53, 54, 55, 56, 55, 55, 55, 54, 54, 55, 56, 56, 56, 57, 58, 58, 58, 58, 59, 59, 59, 59, 60, 60, 61, 61, 60, 59, 59, 58, 58, 57, 56, 55, 55, 55]
 

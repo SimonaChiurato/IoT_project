@@ -6,18 +6,12 @@ import cherrypy
 from ResourceCatalog import *
 
 class ManagerResource():
-    """
-    devices = devices_file
-    settings = json of setting_file
-    home_settings: json of service_file
-    """
+
     exposed = True
     # mqtt-info
     # create a Catalog
 
     def __init__(self,  sensors, settings, home_settings):
-        #self.usersFile = users_file
-        # self.users=json.load(open(self.usersFile)) #for future usage
         self.saved_file = sensors
         with open(self.saved_file, "w") as myfile:
            myfile.write("{}")
@@ -26,23 +20,15 @@ class ManagerResource():
         self.settings = settings
         self.home_settings = home_settings
         putstring = "http://" + str(self.home_settings["ip_address"]) + ":" + str(self.home_settings["ip_port"])
-        #poststring = "http://home-catalog:8095"
         print(putstring)
         requests.put(putstring, json.dumps(self.settings))
         print("POSTING INFORMATION TO THE SERVICE CATALOG\n")
         self.RM = ResourceCatalog(self.sensors)
-    def GET(self, *uri, **params): #copiare da 5.1 server
+    def GET(self, *uri, **params):
         if len(uri) == 1 and len(params) < 2:
-            if uri[0] == 'all':  #cosa esce da questa chiamata?
+            if uri[0] == 'all':
                 return self.RM.listSensors()
-                #???????????????????????' usare users?
-            # elif uri[0]=='allusers':   #FOR FUTURE USE
-            #    return self.viewAllUsers()
-            # elif uri[0]=='user':
-            #    output=self.searchUserByUserID(parameters['user_id'])
-            #    if output=={}:
-            #        raise cherrypy.HTTPError(400, 'user not found')
-            #    return output
+
             elif uri[0] == 'sensor':
                 output = self.RM.sensorByID(params['ID_sensor'])
                 if output == {}:
@@ -74,13 +60,7 @@ class ManagerResource():
 
             else:
                 raise cherrypy.HTTPError(400, 'invalid uri')
-            '''
-            elif (uri[0] == 'user'): #?????????????????
-                if self.searchUserByUserID(json_body['user_id']) != {}:
-                    raise cherrypy.HTTPError(400, 'user already present')
-                self.insertUser(json_body)
-                self.sensors = json.load(open(self.devicesFile))
-            '''
+
         else:
             raise cherrypy.HTTPError(400, 'incorrect URI or PARAMETERS')
 
@@ -120,9 +100,8 @@ class ManagerResource():
 
 if __name__ == "__main__":
 
-    #users_file = "res_cat_users_1.json"  # for future use, can be modified to be obtained through argv
-    settings = json.load(open(sys.argv[1]))   #resource catalog setting
-    sensors = sys.argv[2] #resource catalog device specifico
+    settings = json.load(open(sys.argv[1]))
+    sensors = sys.argv[2]
     home_settings = json.load(open("HomeCatalog_settings.json"))
 
     conf = {
@@ -132,17 +111,9 @@ if __name__ == "__main__":
         }
     }
 
-    #cherrypy.tree.mount(ResourceCatalogManager(users_file, devices_file, service_file, setting_file), '/', conf)
     cherrypy.tree.mount(ManagerResource(sensors, settings, home_settings), '/', conf)
     cherrypy.config.update(conf)
     cherrypy.config.update({'server.socket_host': settings['ip_address']})
     cherrypy.config.update({"server.socket_port": int(settings['ip_port'])})
     cherrypy.engine.start()
-    ''' penso che sia usato per cancellare dei device non aggiornati
-    rcm = ResourceCatalogManager(sensors, setting_device, home_settings)
-    while 1:
-        rcm.removeDevices()
-        time.sleep(120)
-    
-    '''
     cherrypy.engine.block()

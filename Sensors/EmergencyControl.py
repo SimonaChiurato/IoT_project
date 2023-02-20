@@ -6,8 +6,7 @@ from datetime import datetime
 import sys
 
 
-class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS
-                       # AS A PUBLISHER FOR PROVIDING INFORMATION TO THE APPLICATIONS
+class ManageSensor():
     exposed = True
 
     def __init__(self, baseTopic, broker, port, Limits):
@@ -122,7 +121,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
 
 if __name__ == '__main__':
-    config = json.load(open(sys.argv[1]))  #manager sensor settings
+    config = json.load(open(sys.argv[1]))  #emergency control settings
     Home_info = json.load(open("HomeCatalog_settings.json"))
     Limits = "Limits.json"
     manager = ManageSensor(Home_info["base_topic"], config["broker"], config["broker_port"], Limits)

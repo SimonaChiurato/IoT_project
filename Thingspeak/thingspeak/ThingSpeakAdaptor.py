@@ -13,7 +13,6 @@ class ThinkSpeak:
         self.status = None
         self.channel = think["channel"]
         self.write_key = think["key"]
-        # self.ID = self.chosen_patient+"_TS-Adaptor"
         self.type = "TS-Adaptor"
         self.broker_address = think["broker"]
         self.field1_data = None  # Temperature
@@ -47,11 +46,8 @@ class ThinkSpeak:
 
 
 def rooms_sensors(Home_catalog_settings,
-                  chosen_patient):  # METHOD FOR RETRIVING INFORMATION ABOUT OWNERS AND RESOURCE CATALOGS (rooms)
-    # sostituire ad ogni service_catalog_info HomeCatalog_settings
-    # ip_address_service sostituire con ip_address.
+                  chosen_patient):
 
-    # CONTROLLARE MANAGER HOME è il loro service_catalog!
     Home_get_string = "http://" + Home_catalog_settings["ip_address"] + ":" + str(
         Home_catalog_settings["ip_port"]) + "/resource_catalogs"
     rc_info = json.loads(requests.get(Home_get_string).text)
@@ -79,12 +75,10 @@ if __name__ == "__main__":
 
     think = json.load(open(sys.argv[1]))  # config
     headers = {'Content-type': 'application/json', 'Accept': 'raw'}
-    # cambiare nome
     Home_catalog_info = json.load(open("HomeCatalog_settings.json"))
     patient = rooms_sensors(Home_catalog_info, think["name"])
 
-    topic_to_subscribe = patient + "/#"  # SUBSCRIBING TO TOPIC AFTER OBTAINING THE NEEDED INFORMATION FROM rooms_sensors METHOD
-    # qui anche avro solo patient. al post di study_room_ trovare topic in home catalog setting.
+    topic_to_subscribe = patient + "/#"
     tp = ThinkSpeak("Molinette", think["broker"], 1883, think)
 
     tp.start(topic_to_subscribe)
