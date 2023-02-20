@@ -56,7 +56,7 @@ class EchoBot1:
             # Which sensors are in the room of patient X
             self.rooms.append({"room_name": dev["patient"], "room_sensors": sensors})
         # self.bot.message_loop(handle, run_forever=True)
-        MessageLoop(self.bot, {'chat': self.on_chat_message, 'callback_query': self.on_callback_query}).run_forever()
+        MessageLoop(self.bot, {'chat': self.on_chat_message, 'callback_query': self.on_callback_query}).run_as_thread()
 
     def run(self):
         self.client.start()
@@ -91,6 +91,7 @@ class EchoBot1:
             return type
 
     def notify(self, topic, msg):
+        print("ehi")
         payload = json.loads(msg)
         warning_dict = json.loads((payload))
         warning_dict = warning_dict["e"][0]
@@ -129,7 +130,7 @@ class EchoBot1:
                     str(warning_dict['type'])) + ' value is near the high limit: ' + str(
                     warning_dict['value']) + " " + str(warning_dict['unit']))
             for d in chatID_doc:
-                self.bot.sendMessage(d, 'Patient: ' + str(warning_dict['patient']) + '. The' + self.rightName(str(
+                self.bot.sendMessage(d, 'Patient: ' + str(warning_dict['patient']) + '. The ' + self.rightName(str(
                     warning_dict['type'])) + ' value is near the high limit: ' + str(warning_dict['value']) + " " + str(
                     warning_dict['unit']))
 
@@ -163,7 +164,7 @@ class EchoBot1:
 
     def findDoctor(self, chat_ID):
         for p in self.infoPatients['doctors'].values():
-            if chat_ID == p["chat_ID"]:
+            if chat_ID == p["chatID"]:
                 return p
         return ""
 
@@ -351,7 +352,7 @@ if __name__ == "__main__":
     Home_catalog_settings = json.load(open("HomeCatalog_settings.json"))
     infoPatients = "infoPatients.json"
     bot = EchoBot1(token, Home_catalog_settings, Manager_sensor_settings, infoPatients)
-    print("ciao")
+
     bot.run()
     bot.client.unsubscribe()
     topic = Home_catalog_settings["base_topic"].split("/")

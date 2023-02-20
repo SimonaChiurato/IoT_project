@@ -16,7 +16,7 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {  #topic --> bn   message--> e !!!!!!
+        self.__message = {
             'bn': self.topic,
             'e': [
                 {
@@ -51,7 +51,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     with open(home_settings, "r") as file2:
         conf_home = json.loads(file2.read())
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[
-        'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+        'ip_port']) + '/patients'
     ListOfPatients = requests.get(request)
     print("Connection with home catalog: OK\n") #modifica
     names = ListOfPatients.json()
@@ -74,7 +74,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home['ip_port']) + '/info_room?patient=' + patient
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
-    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
+    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")
 
     if rc == 0:
         print('No record for this patient')
@@ -123,7 +123,8 @@ if __name__ == "__main__":
 
     Sensor = (SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict["sensortype"], dict['topic']))
     Sensor.start()
-    """
+
+    """ use this with HW
         while 1:
             
         pin=config["pin"]
@@ -137,13 +138,13 @@ if __name__ == "__main__":
         else:
             print('Failure. Try again!')
     """
-    vect = [35, 35.2, 35.4, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 36.7,
+    vect = [35, 35.2, 36.7, 35.5, 38.5,39.8, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5, 35.5,
             36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.7, 36.9, 37.2, 37.2, 37.2, 37.2, 37.2, 37.2,
-            37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 38.5, 37, 37, 37,
+            37.2, 37.2, 37.2, 37.8, 37.8, 37.8, 37.8, 37.8, 37.8, 38.5, 38.5 , 38.5, 38.5, 38.5, 38.5, 37, 37, 37,
             36.5, 36.5]
     while 1:
         for i in vect: 
             Body_Temperature = i
             print(Body_Temperature, dict['patient'])
             Sensor.publish(Body_Temperature, dict['patient'])
-            time.sleep(5)
+            time.sleep(7)

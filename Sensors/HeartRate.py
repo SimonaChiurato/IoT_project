@@ -16,7 +16,7 @@ class SensorComunication:
         self.topic = topic
         self.client = MyMQTT(self.sensorID, broker, port, None)
 
-        self.__message = {  #topic --> bn   message--> e !!!!!!
+        self.__message = {
             'bn': self.topic,
             'e': [
                 {
@@ -50,9 +50,9 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
 
     with open(home_settings, "r") as file2:
         conf_home = json.loads(file2.read())
-    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[ 'ip_port']) + '/patients'    #ci siamo collegati al topic che ci restituisce la lista di nomi dei pazienti
+    request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home[ 'ip_port']) + '/patients'
     ListOfPatients = requests.get(request)
-    print("Connection with home catalog: OK\n") #modifica
+    print("Connection with home catalog: OK\n")
     names = ListOfPatients.json()
     check_name = False
     while check_name == False:
@@ -73,7 +73,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
     request = 'http://' + str(conf_home['ip_address']) + ':' + str(conf_home['ip_port']) + '/info_room?patient=' + patient
     ResourceCatalog = requests.get(request)
     rc = json.loads(ResourceCatalog.text)
-    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")  # PRINT FOR DEMO #modifica string
+    print("Information on patient " + rc['patient'] + " received (from resource catalog)\n")
 
     if rc == 0:
         print('No record for this patient')
@@ -101,7 +101,7 @@ def RegisterSensor(sensor_settings, home_settings):  #how to register the sensor
         }
 
         requests.post(post, json.dumps(body_dic))
-        print("the patient has been registered on the resource catalog\n")  # PRINT FOR DEMO
+        print("the patient has been registered on the resource catalog\n")
 
         Result_Dict = {
             "sensortype": conf_sensor["sensor_type"][0],
@@ -125,13 +125,12 @@ if __name__ == "__main__":
     Sensor= SensorComunication(dict['broker'], dict['clientID'], int(dict['port']), dict['sensorID'], dict['measure'], dict['sensortype'], dict['topic'])
     Sensor.start()
 
-    vect = [40, 45, 50, 52, 55, 60, 60, 63, 58, 61, 71, 85, 98, 110, 125, 125, 122, 115, 100, 98, 95, 94, 92, 90, 91, 91, 92, 85, 80, 80, 82, 82, 79, 80, 75, 72, 70, 66, 67, 68, 69, 70, 71, 72, 70]
+    vect = [40, 35, 52, 55, 60, 60, 63, 58, 61, 71, 85, 98, 110, 125, 125, 122, 115, 100, 98, 95, 94, 92, 90, 91, 91, 92, 85, 80, 80, 82, 82, 79, 80, 75, 72, 70, 66, 67, 68, 69, 70, 71, 72, 70]
     while 1:
         for i in vect:
 
-            HeartRate = i
-            #HeartRate = HeartRate + random.randint(-1, 1) #SIMULATED SENSOR
+            HeartRate = i #SIMULATED SENSOR
             print(HeartRate, dict['patient'])
             Sensor.publish(HeartRate, dict['patient'])
-            time.sleep(5)
+            time.sleep(7)
 
