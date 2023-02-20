@@ -6,8 +6,8 @@ from datetime import datetime
 import sys
 
 
-class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS AS A SERVER FOR PROVIDING INFORMATION TO THE APPLICATIONS
-
+class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AND ACTS
+                       # AS A PUBLISHER FOR PROVIDING INFORMATION TO THE APPLICATIONS
     exposed = True
 
     def __init__(self, baseTopic, broker, port, Limits):
@@ -69,7 +69,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
                         print("MESSAGE SENT!\n")
                 return output
             else:
-                error_string = "incorrect URI" + len(uri)
+                error_string = "incorrect URI" + str(len(uri))
                 raise cherrypy.HTTPError(400, error_string)
 
     def run(self):
@@ -88,8 +88,7 @@ class ManageSensor():  # THIS PROGRAM RECEIVES DATA VIA MQTT FROM THE SENSORS AN
 
         flag = 0
         for entry in self.register:
-            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0][
-                'patient']:
+            if entry["e"][0]['type'] == result_dict["e"][0]['type'] and entry["e"][0]["patient"] == result_dict["e"][0]['patient']:
                 entry["e"][0]['value'] = result_dict["e"][0]['value']
                 entry["e"][0]['time'] = result_dict["e"][0]['time']
                 entry["e"][0]["patient"] = result_dict["e"][0]["patient"]
@@ -142,6 +141,6 @@ if __name__ == '__main__':
 
     manager.run()
     manager.client.unsubscribe()
-    manager.follow('molinette/patients/#')   #manager.baseTopic + '/#'
+    manager.follow(Home_info["base_topic"] + '/#')   #molinette/patients/#'
     cherrypy.engine.block()
     manager.end()
